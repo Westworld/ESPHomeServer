@@ -1,8 +1,6 @@
 #ifndef STORAGE_HPP_
 #define STORAGE_HPP_
 
-#include "SD.h"
-
 class Storage
 {
     protected:
@@ -13,8 +11,8 @@ class Storage
         virtual bool needReport(int32_t zeit);
         virtual void doReport();
         virtual void Run(int32_t zeit);
-        virtual void WriteHeader(File sdcard);
-        virtual void WriteData(File sdcard);
+        virtual String WriteHeader();
+        virtual String WriteData();
 };
 
 #endif

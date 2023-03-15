@@ -20,10 +20,10 @@ void Storage::Run(int32_t zeit) {
     //Serial.print("storage: ");//+zeit);
 }
 
-void Storage::WriteHeader(File sdcard) {
-
+String Storage::WriteHeader() {
+    return ";storage";
 }
 
-void Storage::WriteData(File sdcard) {
-
+String Storage::WriteData() {
+    return ";storage";
 }

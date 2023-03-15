@@ -15,16 +15,16 @@ void MHZSensor::Run(int32_t zeit) {
      if (zeit > (lastUpdated+repeatTimer)) {
         lastUpdated = zeit;
         if (!nextSend)
-            nextSend = zeit + 30000;  // in next 60 seconds
-   Serial.print("MHZ last");
+            nextSend = zeit + 50000;  // in next 60 seconds
+   //Serial.print("MHZ last ");
  //  Serial.println(lastUpdated);
 
         MHZ19_RESULT response = mhz->retrieveData();
         if (response == MHZ19_RESULT_OK)
         {
             Co2 = mhz->getCO2();
-           Serial.print("co2: ");
-           Serial.println(Co2); 
+           //Serial.print("co2: ");
+           //Serial.println(Co2); 
             temp = mhz->getTemperature();
                 //       Serial.print("temp: ");
                 //       Serial.println(temp); 
@@ -58,17 +58,17 @@ String MHZSensor::serialize() {
 void MHZSensor::doReport() {
     if (nextSend) {
         nextSend = 0;
-        Serial.println("Neuer Report für MHZSensor: ");
-        Serial.println(serialize());
+        //Serial.println("Neuer Report für MHZSensor: ");
+        //Serial.println(serialize());
     }
 }
 
-void MHZSensor::WriteHeader(File sdcard) {
-    sdcard.print(";CO2;Temp;Accuracy");
+String MHZSensor::WriteHeader() {
+    return ";CO2;Temp;Accuracy";
 }
 
-void MHZSensor::WriteData(File sdcard) {
+String MHZSensor::WriteData() {
   char buffer[100];
   snprintf(buffer, 100, ";%d;%d;%d", Co2, temp, Accuracy);
-  sdcard.print(buffer);    
+  return buffer;    
 }

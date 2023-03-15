@@ -15,8 +15,8 @@ class Waage: public Storage
         void NewScale(wer welchewaage, float Gewicht);
         virtual String serialize();
         virtual void doReport();
-        void WriteHeader(File sdcard);
-        void WriteData(File sdcard);        
+        String WriteHeader();
+        String WriteData();        
 };
 
 #endif

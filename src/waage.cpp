@@ -83,12 +83,12 @@ void Waage::doReport() {
     }
 }
 
-void Waage::WriteHeader(File sdcard) {
-    sdcard.print(";Buddy;Mika;Matti;Timmi;Buddy_Tag;Mika_Tag;Matti_Tag");
+String Waage::WriteHeader() {
+    return ";Buddy;Mika;Matti;Timmi;Buddy_Tag;Mika_Tag;Matti_Tag";
 }
 
-void Waage::WriteData(File sdcard) {
+String Waage::WriteData() {
   char buffer[100];
   snprintf(buffer, 100, ";%.1f;%.1f;%.1f;%.1f;%.1f;%.1f;%.1f", Buddy, Mika, Matti, Timmi, tag_Buddy, tag_Matti, tag_Mika);
-  sdcard.print(buffer);    
+  return buffer;    
 }

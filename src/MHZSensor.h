@@ -4,7 +4,7 @@
 #include "storage.h"
 #include <MHZ19.h>
 
-#define repeatTimer 10000
+#define repeatTimer 60000
 
 class MHZSensor: public Storage
 {
@@ -17,8 +17,8 @@ class MHZSensor: public Storage
         virtual void Run(int32_t zeit);
         virtual String serialize();
         virtual void doReport();
-        virtual void WriteHeader(File sdcard);
-        virtual void WriteData(File sdcard);        
+        virtual String WriteHeader();
+        virtual String WriteData();        
 };
 
 #endif

@@ -18,12 +18,15 @@ const int httpPort = 80;
 
 struct tm timeinfo;
 char SDLog_Lasthour = -1;
+char SDLog_Lastmin = -1;
 char time_last_restart_day = -1;
 
 File sdcard;
 
 #define RXD2 27
 #define TXD2 26  // MHZ Sensor
+
+#define Touchsensor 12
 
 WebServer server(80);
 Storage * storage[10];
@@ -94,11 +97,12 @@ void setup() {
   ArduinoOTA.begin();
 
   setTimeZone(MY_TZ);
-/*
+
   if(!SD.begin(5)){
     Serial.println("Card Mount Failed");
-    return;
   }
+
+
   uint8_t cardType = SD.cardType();
 
   if(cardType == CARD_NONE){
@@ -119,7 +123,7 @@ void setup() {
 
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
-*/
+
 
   waage = new Waage();
   storage[storagecounter++] = waage;
@@ -147,19 +151,22 @@ void loop() {
   }
   
   for (int16_t i=0; i<storagecounter;i++) {
-    if (needReport)
+    if (needReport) {
       storage[i]->doReport();
+    }  
   }
 
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
   }
-/*
-  if (timeinfo.tm_hour != SDLog_Lasthour) {
+
+//  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
+  if (timeinfo.tm_hour != SDLog_Lasthour)  {
     SDLog_Lasthour = timeinfo.tm_hour;
-    
-   // logSDFile();
+    SDLog_Lastmin = timeinfo.tm_min;
+    logSDFile();
   }
+
 
   if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
   {
@@ -168,7 +175,7 @@ void loop() {
   }
   else time_last_restart_day = timeinfo.tm_wday;
 
-  */
+  
 }
 
 // size_t sent = server.streamFile(file, contentType);
@@ -209,16 +216,19 @@ void handleStrom() {
 void handleFile() {
   if (server.hasArg("File"))  {
     Serial.println(server.arg("File"));
-    String job = server.arg("File");
+    String job = "/"+server.arg("File");
+    Serial.println("Try to send: "+job);
     if (SD.exists(job)) {
       sdcard = SD.open(job, FILE_READ);
       size_t sent = server.streamFile(sdcard, "text/html");
       sdcard.close();
+      Serial.println("file send...");
     }
     else
       server.send(200, "text/html", "File not found");
-
   }  
+  else  
+    server.send(200, "text/html", "File name not given");
 }
 
 String prepareHtmlPage() {
@@ -246,21 +256,23 @@ String prepareHtmlPage() {
 // on boot, load last values (needed with battery?)
 
 void SDsetFileName(char * name) {
-  sprintf(name, "/Data_%04d_%02d.txt", 30, timeinfo.tm_year, timeinfo.tm_mon);
+  sprintf(name, "/Data_%04d_%02d.txt", 30, timeinfo.tm_year+1900, timeinfo.tm_mon);
 }
 
-void SDwriteHeader() {
+String SDwriteHeader() {
+  String data;
   char buffer[100];
-  snprintf(buffer, 100, "%;%04d-%02d-%02d_$02d-$02d", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
-  sdcard.print(buffer);
-  for (int16_t i=0; i++; i<storagecounter) {
-    storage[i]->WriteHeader(sdcard);
+  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  data = buffer;
+  for (int16_t i=0; i<storagecounter; i++) {
+    data = data + storage[i]->WriteHeader();
   }
-  sdcard.write('\n');
+  return data;
 }
 
 void logSDFile(void) {
   char name[31];
+  String data;
 
   SDsetFileName(name);
 
@@ -269,11 +281,13 @@ void logSDFile(void) {
   }
   else{
     sdcard = SD.open(name, FILE_WRITE);
-    SDwriteHeader();
+    data = SDwriteHeader();
+    sdcard.println(data);  
   }
-  for (int16_t i=0; i++; i<storagecounter) {
-    storage[i]->WriteData(sdcard);
+  data = "";
+  for (int16_t i=0; i<storagecounter; i++) {
+    data = data + storage[i]->WriteData();
   }  
-
+  sdcard.println(data);
   sdcard.close();
 }
