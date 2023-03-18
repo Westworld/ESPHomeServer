@@ -4,7 +4,7 @@
 void Waage::NewScale(wer welchewaage, float fGewicht) {
     int32_t zeit = millis();
     lastUpdated = zeit;
-Serial.println(welchewaage);
+    UDBDebug(String(welchewaage)+" "+String(fGewicht));
 
     switch (welchewaage) {
         case warBuddy : 
@@ -30,7 +30,7 @@ Serial.println(welchewaage);
                 Timmi = fGewicht; 
             break;
     }
-    Serial.println(fGewicht);
+    UDBDebug(String(fGewicht));
 
     if (!nextSend)
         nextSend = zeit+1000; // in 1 Sekunde
@@ -40,7 +40,7 @@ Serial.println(welchewaage);
         tag_Mika = Mika;
         tag_Matti = Matti;
     }
-    Serial.println(serialize());
+    UDBDebug(serialize());
 }
 
 

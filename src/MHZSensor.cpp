@@ -16,19 +16,13 @@ void MHZSensor::Run(int32_t zeit) {
         lastUpdated = zeit;
         if (!nextSend)
             nextSend = zeit + 50000;  // in next 60 seconds
-   //Serial.print("MHZ last ");
- //  Serial.println(lastUpdated);
 
         MHZ19_RESULT response = mhz->retrieveData();
         if (response == MHZ19_RESULT_OK)
         {
             Co2 = mhz->getCO2();
-           //Serial.print("co2: ");
-           //Serial.println(Co2); 
             temp = mhz->getTemperature();
-                //       Serial.print("temp: ");
-                //       Serial.println(temp); 
-            Accuracy = mhz->getAccuracy();
+            temp -= 6;  // geht falsch...
         }
         else
         {
@@ -46,8 +40,6 @@ String MHZSensor::serialize() {
     result += Co2;
     result += ", Temp = ";
     result += temp;
-    result += ", Accuracy = ";
-    result += Accuracy;
     result += "\nLastUpdate = ";
     result += lastUpdated;
     result += " nextSend = ";
@@ -64,11 +56,11 @@ void MHZSensor::doReport() {
 }
 
 String MHZSensor::WriteHeader() {
-    return ";CO2;Temp;Accuracy";
+    return ";CO2;Temp";
 }
 
 String MHZSensor::WriteData() {
   char buffer[100];
-  snprintf(buffer, 100, ";%d;%d;%d", Co2, temp, Accuracy);
+  snprintf(buffer, 100, ";%d;%d", Co2, temp);
   return buffer;    
 }

@@ -13,3 +13,7 @@ void handleFile(void);
 String prepareHtmlPage(void);
 void setSDFileName(char * name);
 void logSDFile(void);
+void WebSendDirList();
+String ReadLastLine();
+void webdebug(void);
+void UDBDebug(String message);

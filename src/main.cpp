@@ -3,9 +3,20 @@
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
+#include <WiFiUdp.h>
+
+#include <iostream>
+#include <fstream>
 
 #include "waage.h"
 #include "MHZSensor.h"
+
+#define UDPDEBUG 1
+#ifdef UDPDEBUG
+WiFiUDP udp;
+const char * udpAddress = "192.168.0.34";
+const int udpPort = 19814;
+#endif
 
 WiFiManager wifiManager;
 #define NTP_SERVER "de.pool.ntp.org"
@@ -132,10 +143,10 @@ void setup() {
 
   server.on("/4DAction/Strom", handleStrom);
   server.on("/sendfile", handleFile);
+    server.on("/debug", webdebug);
   server.begin();
 
   Serial.println("all systems go...");
- 
 }
 
 void loop() { 
@@ -209,9 +220,13 @@ void handleStrom() {
   if (server.hasArg("Gewicht"))  {
     Serial.println(server.arg("Gewicht"));
     }    
+
   server.send(200, "text/html", prepareHtmlPage());
 }
 
+void webdebug() {
+  server.send(200, "text/plain", ReadLastLine());
+}
 
 void handleFile() {
   if (server.hasArg("File"))  {
@@ -220,15 +235,17 @@ void handleFile() {
     Serial.println("Try to send: "+job);
     if (SD.exists(job)) {
       sdcard = SD.open(job, FILE_READ);
-      size_t sent = server.streamFile(sdcard, "text/html");
+      size_t sent = server.streamFile(sdcard, "text/plain");
       sdcard.close();
       Serial.println("file send...");
     }
     else
       server.send(200, "text/html", "File not found");
   }  
-  else  
-    server.send(200, "text/html", "File name not given");
+  else   {
+          WebSendDirList();
+  }
+    
 }
 
 String prepareHtmlPage() {
@@ -284,10 +301,95 @@ void logSDFile(void) {
     data = SDwriteHeader();
     sdcard.println(data);  
   }
-  data = "";
+
+  char buffer[100];
+  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  data = buffer;
+
   for (int16_t i=0; i<storagecounter; i++) {
     data = data + storage[i]->WriteData();
   }  
   sdcard.println(data);
   sdcard.close();
+}
+
+void WebSendDirList()
+{  
+  String dirchar = "/";
+  String content = "";
+  File root;
+
+  String answer =  String("<!DOCTYPE HTML><html><body>");
+
+  root = SD.open("/");
+  while (true)
+  {
+    File entry =  root.openNextFile();
+    short filetype=0;
+    if (! entry)
+    {
+      // no more files
+      break;
+    }
+    
+    if (entry.isDirectory()) 
+    {
+      // Skip file if in subfolder
+       entry.close(); // Close folder entry
+    } 
+    else
+    {
+      //Serial.println(entry.name());
+      String dirname = root.name();
+      String filename = entry.name();
+      if (filename.startsWith(".")) continue;
+      //filename = dirchar + filename;
+      answer = answer + String("<a href=\"/sendfile?File=")+filename +String("\">")+filename + String("</a><br>\r\n");
+      entry.close();
+    }
+  }
+  answer =  answer + String("</body></html>\r\n");
+  server.send(200, "text/html", answer);
+}
+
+String ReadLastLine()
+{
+    String name = "/Data_0030_2023.txt";
+    sdcard = SD.open(name, FILE_READ);
+    size_t filesize = sdcard.size();
+    Serial.println(filesize);
+    sdcard.seek(filesize-2);
+
+        bool keepLooping = true;
+        while(keepLooping) {
+            char ch;
+            ch = sdcard.read();  // Get current byte's data
+            Serial.println(ch);
+
+            if(ch == -1) {             // If the data was at or before the 0th byte
+                sdcard.seek(0);                       // The first line is the last line
+                keepLooping = false;                // So stop there
+            }
+            else if(ch == '\n') {                   // If the data was a newline
+                keepLooping = false;                // Stop at the current position.
+            }
+            else {                                  // If the data was neither a newline nor at the 0 byte
+                sdcard.seek(sdcard.position()-2);        // Move to the front of that data, then to the front of the data before it
+                Serial.print("new: ");Serial.println(sdcard.position());
+            }
+        }
+
+        String lastLine;            
+        lastLine = sdcard.readStringUntil('\n');                      // Read the current line
+
+        sdcard.close();
+        return(lastLine);
+}
+
+void UDBDebug(String message) {
+#ifdef UDPDEBUG
+  udp.beginPacket(udpAddress, udpPort);
+  udp.write((const uint8_t* ) message.c_str(), (size_t) message.length());
+  udp.endPacket();
+#endif  
 }

@@ -1,6 +1,8 @@
 #ifndef STORAGE_HPP_
 #define STORAGE_HPP_
 
+extern void UDBDebug(String message);
+
 class Storage
 {
     protected:
