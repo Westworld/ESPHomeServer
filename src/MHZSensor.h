@@ -16,7 +16,6 @@ class MHZSensor: public Storage
         MHZSensor(Stream * stream);
         virtual void Run(int32_t zeit);
         virtual String serialize();
-        virtual void doReport();
         virtual String WriteHeader();
         virtual String WriteData();        
 };

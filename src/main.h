@@ -1,13 +1,12 @@
 #include <Arduino.h>
-#include <WiFiManager.h> 
-//#include "WiFi.h"
-//#include <ESP32WebServer.h>
-//#include <WiFiUdp.h>
+#include "WiFi.h"
+#include <WiFiUdp.h>
+#include <ESP32WebServer.h>
 #include <time.h>  
 #include <ArduinoOTA.h>
 #include <HTTPClient.h>
-#include "ArduinoJson.h"
 
+void MQTT_reconnect();
 void handleStrom(void);
 void handleFile(void);
 String prepareHtmlPage(void);
@@ -17,3 +16,5 @@ void WebSendDirList();
 String ReadLastLine();
 void webdebug(void);
 void UDBDebug(String message);
+void MQTT_Send(char const * topic, float value); 
+void MQTT_Send(char const * topic, int16_t value);

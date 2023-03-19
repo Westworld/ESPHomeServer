@@ -14,7 +14,6 @@ class Waage: public Storage
         enum  wer { warBuddy=0, warMika, warMatti, warTimmi, unbekannt };
         void NewScale(wer welchewaage, float Gewicht);
         virtual String serialize();
-        virtual void doReport();
         String WriteHeader();
         String WriteData();        
 };

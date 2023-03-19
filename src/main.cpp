@@ -3,7 +3,7 @@
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
-#include <WiFiUdp.h>
+#include <PubSubClient.h>
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,8 @@ const char * udpAddress = "192.168.0.34";
 const int udpPort = 19814;
 #endif
 
-WiFiManager wifiManager;
+WiFiClient wifiClient;
+
 #define NTP_SERVER "de.pool.ntp.org"
 #define DefaultTimeZone "CET-1CEST,M3.5.0/02,M10.5.0/03"  
 String MY_TZ = DefaultTimeZone ;
@@ -26,6 +27,12 @@ const char* wifihostname = "ESPHomeServer";
 
 const char* host = "http://192.168.0.34";
 const int httpPort = 80;
+
+
+#define useMQTT
+const char* mqtt_server = "192.168.0.57";
+// MQTT_User and MQTT_Pass defined via platform.ini, external file, not uploaded to github
+PubSubClient mqttclient(wifiClient);
 
 struct tm timeinfo;
 char SDLog_Lasthour = -1;
@@ -39,7 +46,7 @@ File sdcard;
 
 #define Touchsensor 12
 
-WebServer server(80);
+ESP32WebServer server(80);
 Storage * storage[10];
 int16_t storagecounter=0;
 Waage * waage;
@@ -53,31 +60,35 @@ void setTimeZone(String TimeZone) {
     Serial.println("TimeZone: "+TimeZone);
     Serial.println(&local, "%A, %B %d %Y %H:%M:%S");
   #endif  
- 
 }
 
-void configModeCallback (WiFiManager *myWiFiManager) {
-  Serial.println("Config mode");
-  String ipaddress = WiFi.softAPIP().toString();
-  Serial.println(ipaddress);
+void WifiConnect() {
+    WiFi.setHostname(wifihostname);  
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    short counter = 0;
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+      if (++counter > 50)
+        ESP.restart();
+    }
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(F("."));
+    }
+    IPAddress ip = WiFi.localIP();
+    Serial.println(F("WiFi connected"));
+    Serial.println(ip);
 }
 
 void setup() {
   Serial1.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.begin(115200);
 
-  wifiManager.setHostname(wifihostname);
-  wifiManager.setConfigPortalTimeout(180);
-  wifiManager.setAPCallback(configModeCallback);
-  wifiManager.setConnectRetries(10);
-  wifiManager.setConnectTimeout(10);
-  wifiManager.autoConnect(wifihostname); 
-
-  if (WiFi.status() != WL_CONNECTED) {
-    ESP.restart();
-  }
-  String ipaddress = WiFi.localIP().toString();
-  Serial.println(ipaddress);  
+  WifiConnect() ;
 
     ArduinoOTA
     .onStart([]() {
@@ -135,36 +146,50 @@ void setup() {
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
+#ifdef useMQTT
+ // MQTT
+ Serial.printf("vor MQTT");
+    mqttclient.setServer(mqtt_server, 1883);
+   Serial.printf("nach MQTT");
+   if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
+      //mqttclient.publish("outTopic","hello world");
+      UDBDebug("MQTT connect successful"); 
+   }  
+    else
+       UDBDebug("MQTT connect error");  
 
+   Serial.printf("nach MQTT");   
+#endif
+
+ // DEVICES
   waage = new Waage();
   storage[storagecounter++] = waage;
   mhzsensor = new MHZSensor(&Serial2);
   storage[storagecounter++] = mhzsensor;
 
+// Web request handler
   server.on("/4DAction/Strom", handleStrom);
   server.on("/sendfile", handleFile);
-    server.on("/debug", webdebug);
+  server.on("/debug", webdebug);
   server.begin();
 
   Serial.println("all systems go...");
+  UDBDebug("all systems go...");
 }
 
+
 void loop() { 
+  if (WiFi.status() != WL_CONNECTED)
+    WifiConnect();
   ArduinoOTA.handle();
   server.handleClient();
+  #ifdef useMQTT
+  mqttclient.loop();
+  #endif
 
   int32_t zeit = millis();
-  bool needReport = false; 
-
   for (int16_t i=0; i<storagecounter;i++) {  
     storage[i]->Run(zeit);
-    needReport |= storage[i]->needReport(zeit);
-  }
-  
-  for (int16_t i=0; i<storagecounter;i++) {
-    if (needReport) {
-      storage[i]->doReport();
-    }  
   }
 
   if(!getLocalTime(&timeinfo)){
@@ -225,7 +250,12 @@ void handleStrom() {
 }
 
 void webdebug() {
-  server.send(200, "text/plain", ReadLastLine());
+  String message= "";
+  for (int16_t i=0; i<storagecounter; i++) {
+    message = message + storage[i]->serialize() + "\n";
+  }
+
+  server.send(200, "text/plain", message);
 }
 
 void handleFile() {
@@ -302,8 +332,8 @@ void logSDFile(void) {
     sdcard.println(data);  
   }
 
-  char buffer[100];
-  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  char buffer[500];
+  snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
   data = buffer;
 
   for (int16_t i=0; i<storagecounter; i++) {
@@ -392,4 +422,26 @@ void UDBDebug(String message) {
   udp.write((const uint8_t* ) message.c_str(), (size_t) message.length());
   udp.endPacket();
 #endif  
+}
+
+void MQTT_Send(char const * topic, float value) {
+    #ifdef useMQTT
+    UDBDebug("MQTT " +String(topic)+" "+String(value));  
+    char buffer[10];
+    snprintf(buffer, 10, "%f", value);
+    if (!mqttclient.publish(topic, buffer)) {
+       UDBDebug("MQTT error");  
+    };
+    #endif
+}
+
+void MQTT_Send(char const * topic, int16_t value) {
+    #ifdef useMQTT
+    UDBDebug("MQTT " +String(topic)+" "+String(value));  
+    char buffer[10];
+    snprintf(buffer, 10, "%d", value);
+    if (!mqttclient.publish(topic, buffer)) {
+       UDBDebug("MQTT error");  
+    };
+    #endif
 }

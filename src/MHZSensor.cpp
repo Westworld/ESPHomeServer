@@ -14,8 +14,8 @@ void MHZSensor::Run(int32_t zeit) {
 
      if (zeit > (lastUpdated+repeatTimer)) {
         lastUpdated = zeit;
-        if (!nextSend)
-            nextSend = zeit + 50000;  // in next 60 seconds
+        //if (!nextSend)
+        //    nextSend = zeit + 50000;  // in next 60 seconds
 
         MHZ19_RESULT response = mhz->retrieveData();
         if (response == MHZ19_RESULT_OK)
@@ -23,6 +23,8 @@ void MHZSensor::Run(int32_t zeit) {
             Co2 = mhz->getCO2();
             temp = mhz->getTemperature();
             temp -= 6;  // geht falsch...
+            MQTT_Send((char const *) "HomeServer/WZ/Temp", temp);
+            MQTT_Send((char const *) "HomeServer/WZ/Co2", Co2);           
         }
         else
         {
@@ -42,17 +44,7 @@ String MHZSensor::serialize() {
     result += temp;
     result += "\nLastUpdate = ";
     result += lastUpdated;
-    result += " nextSend = ";
-    result += nextSend; 
     return result;
-}
-
-void MHZSensor::doReport() {
-    if (nextSend) {
-        nextSend = 0;
-        //Serial.println("Neuer Report für MHZSensor: ");
-        //Serial.println(serialize());
-    }
 }
 
 String MHZSensor::WriteHeader() {

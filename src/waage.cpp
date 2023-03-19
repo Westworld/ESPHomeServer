@@ -8,37 +8,47 @@ void Waage::NewScale(wer welchewaage, float fGewicht) {
 
     switch (welchewaage) {
         case warBuddy : 
-            if ((fGewicht>6.0) & (fGewicht<6.8))
+            if ((fGewicht>6.0) & (fGewicht<6.8)) {
                 Buddy = fGewicht; 
-                tag_Buddy_last = zeit;           
+                tag_Buddy_last = zeit;  
+                MQTT_Send((char const *) "HomeServer/Tiere/Buddy", fGewicht); 
+            }        
             break;
          case warMika : 
             fGewicht = fGewicht*1.01;
-            if ((fGewicht>6.4) & (fGewicht<7))
+            if ((fGewicht>6.4) & (fGewicht<7)) {
                 Mika = fGewicht;
+                MQTT_Send((char const *) "HomeServer/Tiere/Mika", fGewicht); 
                 tag_Mika_last = zeit;
+            }    
             break;
          case warMatti : 
             fGewicht = fGewicht*0.99;
-            if ((fGewicht>7) & (fGewicht<7.5))
+            if ((fGewicht>7) & (fGewicht<7.5)) {
                 Matti = fGewicht;
+                MQTT_Send((char const *) "HomeServer/Tiere/Matti", fGewicht); 
                 tag_Matti_last = zeit;
+            }    
             break;
         case warTimmi : 
             fGewicht = fGewicht * 0.89;
-            if ((fGewicht>8.2) & (fGewicht<9))
+            if ((fGewicht>8.2) & (fGewicht<9)) {
                 Timmi = fGewicht; 
+                MQTT_Send((char const *) "HomeServer/Tiere/Timmi", fGewicht); 
+            }    
             break;
     }
     UDBDebug(String(fGewicht));
 
-    if (!nextSend)
-        nextSend = zeit+1000; // in 1 Sekunde
+    
     zeit -= 3000; // 3 sekunden
     if ((tag_Buddy_last > zeit) && (tag_Mika_last > zeit)  && (tag_Matti_last > zeit)) {
         tag_Buddy = Buddy;
         tag_Mika = Mika;
         tag_Matti = Matti;
+        MQTT_Send((char const *) "HomeServer/Tiere/Tag_Buddy", Buddy); 
+        MQTT_Send((char const *) "HomeServer/Tiere/Tag_Mika", Mika); 
+        MQTT_Send((char const *) "HomeServer/Tiere/Tag_Matti", Matti); 
     }
     UDBDebug(serialize());
 }
@@ -65,22 +75,12 @@ String Waage::serialize() {
     result += tag_Buddy_last;
     result += " Mika = ";
     result += tag_Mika_last;
-    result += " tag_Matti_last = ";
-    result += tag_Matti;  
+    result += " Matti = ";
+    result += tag_Matti_last;  
     result += "\nLastUpdate = ";
     result += lastUpdated;
-    result += " nextSend = ";
-    result += nextSend; 
 
     return result;
-}
-
-void Waage::doReport() {
-    if (nextSend) {
-        nextSend = 0;
-        Serial.println("Neuer Report für Waage: ");
-        Serial.println(serialize());
-    }
 }
 
 String Waage::WriteHeader() {
