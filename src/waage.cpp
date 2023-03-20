@@ -89,6 +89,21 @@ String Waage::WriteHeader() {
 
 String Waage::WriteData() {
   char buffer[100];
-  snprintf(buffer, 100, ";%.1f;%.1f;%.1f;%.1f;%.1f;%.1f;%.1f", Buddy, Mika, Matti, Timmi, tag_Buddy, tag_Matti, tag_Mika);
+  snprintf(buffer, 100, ";%.1f;%.1f;%.1f;%.1f;%.1f;%.1f;%.1f", Buddy, Mika, Matti, Timmi, tag_Buddy, tag_Mika, tag_Matti);
   return buffer;    
+}
+
+String Waage::readLastLine(String &lastline) {
+    // first ; already removed
+    int16_t index = 0;
+    float result = 0;
+    if (!get_token_Stored_Data(lastline, Buddy)) return "";
+    if (!get_token_Stored_Data(lastline, Mika)) return "";
+    if (!get_token_Stored_Data(lastline, Matti)) return "";
+    if (!get_token_Stored_Data(lastline, Timmi)) return "";
+    if (!get_token_Stored_Data(lastline, tag_Buddy)) return "";
+    if (!get_token_Stored_Data(lastline, tag_Mika)) return "";
+    if (!get_token_Stored_Data(lastline, tag_Matti)) return "";
+    return lastline;
+
 }

@@ -10,6 +10,7 @@
 
 #include "waage.h"
 #include "MHZSensor.h"
+#include "wasser.h"
 
 #define UDPDEBUG 1
 #ifdef UDPDEBUG
@@ -29,7 +30,6 @@ const char* host = "http://192.168.0.34";
 const int httpPort = 80;
 
 
-#define useMQTT
 const char* mqtt_server = "192.168.0.57";
 // MQTT_User and MQTT_Pass defined via platform.ini, external file, not uploaded to github
 PubSubClient mqttclient(wifiClient);
@@ -51,6 +51,7 @@ Storage * storage[10];
 int16_t storagecounter=0;
 Waage * waage;
 MHZSensor * mhzsensor;
+Wasser * wasser;
 
 void setTimeZone(String TimeZone) {
   struct tm local;
@@ -146,7 +147,7 @@ void setup() {
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
-#ifdef useMQTT
+
  // MQTT
  Serial.printf("vor MQTT");
     mqttclient.setServer(mqtt_server, 1883);
@@ -159,19 +160,27 @@ void setup() {
        UDBDebug("MQTT connect error");  
 
    Serial.printf("nach MQTT");   
-#endif
+
+  while (!getLocalTime(&timeinfo)) {
+    UDBDebug("error getLocalTime"); 
+    delay(2000);
+  }
 
  // DEVICES
   waage = new Waage();
   storage[storagecounter++] = waage;
   mhzsensor = new MHZSensor(&Serial2);
   storage[storagecounter++] = mhzsensor;
+  wasser = new Wasser();
+  storage[storagecounter++] = wasser;
 
 // Web request handler
   server.on("/4DAction/Strom", handleStrom);
   server.on("/sendfile", handleFile);
   server.on("/debug", webdebug);
   server.begin();
+
+  ReadAndParseLastLine();
 
   Serial.println("all systems go...");
   UDBDebug("all systems go...");
@@ -183,9 +192,13 @@ void loop() {
     WifiConnect();
   ArduinoOTA.handle();
   server.handleClient();
-  #ifdef useMQTT
-  mqttclient.loop();
-  #endif
+  if (!mqttclient.loop()) {
+    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
+      UDBDebug("MQTT reconnect successful"); 
+   }  
+    else
+       UDBDebug("MQTT reconnect error");  
+  };
 
   int32_t zeit = millis();
   for (int16_t i=0; i<storagecounter;i++) {  
@@ -195,23 +208,24 @@ void loop() {
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
   }
-
-//  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
-  if (timeinfo.tm_hour != SDLog_Lasthour)  {
-    SDLog_Lasthour = timeinfo.tm_hour;
-    SDLog_Lastmin = timeinfo.tm_min;
-    logSDFile();
-  }
-
-
-  if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
+  else
   {
-    // time for restart !! one restart every week
-    ESP.restart();
-  }
-  else time_last_restart_day = timeinfo.tm_wday;
+    //  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
+      if (timeinfo.tm_hour != SDLog_Lasthour)  {
+        SDLog_Lasthour = timeinfo.tm_hour;
+        SDLog_Lastmin = timeinfo.tm_min;
+        logSDFile();
+      }
 
-  
+
+      if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
+      {
+        // time for restart !! one restart every week
+        ESP.restart();
+      }
+      else time_last_restart_day = timeinfo.tm_wday;
+
+  }  // time success received
 }
 
 // size_t sent = server.streamFile(file, contentType);
@@ -240,11 +254,21 @@ void handleStrom() {
       server.send(200, "text/html", prepareHtmlPage());
       return;
     }  
-  }
 
-  if (server.hasArg("Gewicht"))  {
-    Serial.println(server.arg("Gewicht"));
-    }    
+    if (job == "Wasser") {
+        long counter = 0;
+        float temp = 127;
+        if (server.hasArg("Counter")) {
+          String SCounter = server.arg("Counter"); 
+          counter = SCounter.toInt();
+        }
+        if (server.hasArg("Temp")) {
+          String STemp = server.arg("Temp"); 
+          temp = STemp.toFloat();
+        }   
+        wasser->NewReport(counter, temp);     
+    }
+  } 
 
   server.send(200, "text/html", prepareHtmlPage());
 }
@@ -303,7 +327,7 @@ String prepareHtmlPage() {
 // on boot, load last values (needed with battery?)
 
 void SDsetFileName(char * name) {
-  sprintf(name, "/Data_%04d_%02d.txt", 30, timeinfo.tm_year+1900, timeinfo.tm_mon);
+  snprintf(name, 30, "/Data_%04d_%02d.txt", timeinfo.tm_year+1900, timeinfo.tm_mon);
 }
 
 String SDwriteHeader() {
@@ -384,36 +408,62 @@ void WebSendDirList()
 
 String ReadLastLine()
 {
-    String name = "/Data_0030_2023.txt";
-    sdcard = SD.open(name, FILE_READ);
-    size_t filesize = sdcard.size();
-    Serial.println(filesize);
-    sdcard.seek(filesize-2);
+    char name [30];
+    SDsetFileName(name);
+    UDBDebug(name);
+    if (!SD.exists(name)) {
+      UDBDebug("File does not exists");
+      return "";
+    }
+    else {
+      sdcard = SD.open(name, FILE_READ);
+      size_t filesize = sdcard.size();
+      Serial.println(filesize);
+      sdcard.seek(filesize-2);
 
-        bool keepLooping = true;
-        while(keepLooping) {
-            char ch;
-            ch = sdcard.read();  // Get current byte's data
-            Serial.println(ch);
+          bool keepLooping = true;
+          while(keepLooping) {
+              char ch;
+              ch = sdcard.read();  // Get current byte's data
+              Serial.println(ch);
 
-            if(ch == -1) {             // If the data was at or before the 0th byte
-                sdcard.seek(0);                       // The first line is the last line
-                keepLooping = false;                // So stop there
-            }
-            else if(ch == '\n') {                   // If the data was a newline
-                keepLooping = false;                // Stop at the current position.
-            }
-            else {                                  // If the data was neither a newline nor at the 0 byte
-                sdcard.seek(sdcard.position()-2);        // Move to the front of that data, then to the front of the data before it
-                Serial.print("new: ");Serial.println(sdcard.position());
-            }
-        }
+              if(ch == -1) {             // If the data was at or before the 0th byte
+                  sdcard.seek(0);                       // The first line is the last line
+                  keepLooping = false;                // So stop there
+              }
+              else if(ch == '\n') {                   // If the data was a newline
+                  keepLooping = false;                // Stop at the current position.
+              }
+              else {                                  // If the data was neither a newline nor at the 0 byte
+                  sdcard.seek(sdcard.position()-2);        // Move to the front of that data, then to the front of the data before it
+                  Serial.print("new: ");Serial.println(sdcard.position());
+              }
+          }
 
-        String lastLine;            
-        lastLine = sdcard.readStringUntil('\n');                      // Read the current line
+          String lastLine;            
+          lastLine = sdcard.readStringUntil('\n');                      // Read the current line
 
-        sdcard.close();
-        return(lastLine);
+          sdcard.close();
+          return(lastLine);
+    }    
+}
+
+void ReadAndParseLastLine() {
+  UDBDebug("read last values...");
+  String lastline = ReadLastLine();
+  UDBDebug(lastline);
+  if (lastline.charAt(0) == '#') {
+    lastline = lastline.substring(2);
+    int16_t pos = lastline.indexOf(';');
+    if(pos >= 0) {
+      lastline = lastline.substring(pos+1);
+      for (int16_t i=0; i<storagecounter;i++) {  
+        lastline = storage[i]->readLastLine(lastline);  // first ; already removed
+        UDBDebug(storage[i]->serialize());
+        UDBDebug(lastline);
+      }
+    }
+  }
 }
 
 void UDBDebug(String message) {
@@ -424,24 +474,27 @@ void UDBDebug(String message) {
 #endif  
 }
 
-void MQTT_Send(char const * topic, float value) {
-    #ifdef useMQTT
-    UDBDebug("MQTT " +String(topic)+" "+String(value));  
-    char buffer[10];
-    snprintf(buffer, 10, "%f", value);
-    if (!mqttclient.publish(topic, buffer)) {
+void MQTT_Send(char const * topic, String value) {
+    UDBDebug("MQTT " +String(topic)+" "+value);  
+    if (!mqttclient.publish(topic, value.c_str(), true)) {
        UDBDebug("MQTT error");  
     };
-    #endif
+}
+
+void MQTT_Send(char const * topic, float value) {
+    char buffer[10];
+    snprintf(buffer, 10, "%f", value);
+    MQTT_Send(topic, buffer);
 }
 
 void MQTT_Send(char const * topic, int16_t value) {
-    #ifdef useMQTT
-    UDBDebug("MQTT " +String(topic)+" "+String(value));  
     char buffer[10];
     snprintf(buffer, 10, "%d", value);
-    if (!mqttclient.publish(topic, buffer)) {
-       UDBDebug("MQTT error");  
-    };
-    #endif
+    MQTT_Send(topic, buffer);
+}
+
+void MQTT_Send(char const * topic, long value) {
+    char buffer[10];
+    snprintf(buffer, 10, "%d", value);
+    MQTT_Send(topic, buffer);
 }

@@ -15,7 +15,8 @@ class Waage: public Storage
         void NewScale(wer welchewaage, float Gewicht);
         virtual String serialize();
         String WriteHeader();
-        String WriteData();        
+        String WriteData();   
+        virtual String readLastLine(String &lastline);     
 };
 
 #endif
