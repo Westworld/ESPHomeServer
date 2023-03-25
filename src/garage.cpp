@@ -31,7 +31,7 @@ void Garage::NewReport(long newcounter, float newtemp, String Button) {
     }
 
     if (Button != "") {
-        UDBDebug("Garage Button: "+Button); 
+        //UDBDebug("Garage Button: "+Button); 
         if (Button.length()>3) {
             SetGarageDoor(Button.substring(0, 3));      // substring, last index excluding   
             SetGarageDoor(Button.substring(3, 6));         
@@ -49,16 +49,17 @@ void Garage::SetGarageDoorNew(int8_t Seite, int8_t Zustand, String ZustandBild) 
         // BMW/VW
         BMW = Zustand;
         strncpy(BMWBild, ZustandBild.c_str(), 5);
-        MQTT_Send("garage/CurDoorState/BMW", (int16_t) Zustand);
-        MQTT_Send("garage/CurDoorState/BMWBild", ZustandBild);
+        MQTT_Send("garage/CurrentDoorState/BMW", (int16_t) Zustand);
+        MQTT_Send("garage/CurrentDoorState/BMWBild", ZustandBild);
     }
     else {
         // Mini
         Mini = Zustand;
         strncpy(MiniBild, ZustandBild.c_str(), 5);
-        MQTT_Send("garage/CurDoorState/Mini", (int16_t) Zustand);
-        MQTT_Send("garage/CurDoorState/MiniBild", ZustandBild);
+        MQTT_Send("garage/CurrentDoorState/Mini", (int16_t) Zustand);
+        MQTT_Send("garage/CurrentDoorState/MiniBild", ZustandBild);
         }
+    //MQTT_Send("display/status", String(millis()));  ??? bevor Daten bei 4D angekommen sind?
 }
 
 void Garage::SetGarageDoor(String door) {

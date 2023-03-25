@@ -23,3 +23,4 @@ void MQTT_Send(char const * topic, String value);
 void MQTT_Send(char const * topic, float value); 
 void MQTT_Send(char const * topic, int16_t value);
 void MQTT_Send(char const * topic, long value);
+void MQTT_callback(char* topic, byte* payload, unsigned int length);

@@ -154,10 +154,16 @@ void setup() {
  // MQTT
  Serial.printf("vor MQTT");
     mqttclient.setServer(mqtt_server, 1883);
+    mqttclient.setCallback(MQTT_callback);
    Serial.printf("nach MQTT");
    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       //mqttclient.publish("outTopic","hello world");
       UDBDebug("MQTT connect successful"); 
+      //mqttclient.subscribe("garage/TargetDoorState");
+      //const char *TOPIC = "Haus/Sonoff POW R1/R2/Dreamer_Power/#";
+      const char *TOPIC = "garage/TargetDoorState/#";
+      mqttclient.subscribe(TOPIC);
+      //mqttclient.subscribe("Haus/+/Power");
    }  
     else
        UDBDebug("MQTT connect error");  
@@ -623,4 +629,18 @@ void MQTT_Send(char const * topic, long value) {
     char buffer[10];
     snprintf(buffer, 10, "%d", value);
     MQTT_Send(topic, buffer);
+}
+
+  // Callback function
+void MQTT_callback(char* topic, byte* payload, unsigned int length) {
+  String message = String(topic);
+  payload[length] = '\0';
+  String value = String((char *) payload);
+  UDBDebug(message +" - "+value);
+  if (strcmp(topic,"garage/TargetDoorState/BMW")==0){
+    UDBDebug("open BMW");
+  }
+  if (strcmp(topic,"garage/TargetDoorState/Mini")==0){
+    UDBDebug("open Mini");
+  }
 }
