@@ -289,6 +289,7 @@ void handleStrom() {
     if (job == "Garage") {
         long counter = 0;
         float temp = 127;
+        String Button="";
         if (server.hasArg("Strom")) {
           String SCounter = server.arg("Strom"); 
           counter = SCounter.toInt();
@@ -297,7 +298,10 @@ void handleStrom() {
           String STemp = server.arg("Temp2"); 
           temp = STemp.toFloat();
         }   
-        garage->NewReport(counter, temp);   
+        if (server.hasArg("Button")) {
+          Button = server.arg("Button"); 
+        } 
+        garage->NewReport(counter, temp, Button);   
         server.send(200, "text/html", String("OK Garage"));  
         return;
     }

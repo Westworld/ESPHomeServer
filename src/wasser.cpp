@@ -21,8 +21,6 @@ void Wasser::NewReport(long newcounter, float newtemp) {
                 wasseralarm = -1;         
             }
         }
-        // counter 5 min
-        counter5min++;
         counterday++; 
 
         MQTT_Send((char const *) "HomeServer/Heizung/Wasser", counter); 
@@ -49,14 +47,6 @@ void Wasser::Run(int32_t zeit) {
             }    
         }
     }  
-
-    if ((counter5minTime + 300000)<zeit) {
-            if (counter5min != 0) {
-                MQTT_Send((char const *) "HomeServer/Heizung/Wasser5min", counter5min); 
-                counter5min = 0;
-            }
-            counter5minTime = zeit;
-        }
 }
 
 String Wasser::serialize() {

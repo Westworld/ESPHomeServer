@@ -12,7 +12,6 @@ class Wasser: public Storage
         long counter=0;
         long wasserstarted=0, lastwasser=0;
         int8_t wasseralarm = 1;  // -1 Alarm, 1 aus, 0 normal
-        int16_t counter5min=0; long counter5minTime=0;
         long counterday=0;
 
     public:
