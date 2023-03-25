@@ -9,13 +9,18 @@ class Waage: public Storage
         float Buddy=0, Mika=0, Matti=0, Timmi=0;
         float tag_Buddy=0, tag_Mika=0, tag_Matti=0;
         int32_t tag_Buddy_last=0, tag_Mika_last=0, tag_Matti_last=0;
+        int16_t lastUpdateBuddy, lastUpdateMika, lastUpdateMatti, lastUpdateTimmi;
 
     public:
+        Waage();
         enum  wer { warBuddy=0, warMika, warMatti, warTimmi, unbekannt };
         void NewScale(wer welchewaage, float Gewicht);
         virtual String serialize();
-        String WriteHeader();
-        String WriteData();   
+        virtual String WriteHeader();
+        virtual String WriteData();  
+        virtual void run(int32_t zeit); 
+        virtual String WriteDayHeader();
+        virtual String WriteDayData();  
         virtual String readLastLine(String &lastline);     
 };
 

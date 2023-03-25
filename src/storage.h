@@ -15,7 +15,9 @@ class Storage
         virtual String serialize();
         virtual void Run(int32_t zeit);
         virtual String WriteHeader();
+        virtual String WriteDayHeader(); 
         virtual String WriteData();
+        virtual String WriteDayData();
         virtual String readLastLine(String &lastline);
         bool get_token_Stored_Data(String &from, float &to);
 };

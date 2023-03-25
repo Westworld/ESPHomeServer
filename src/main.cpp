@@ -11,6 +11,7 @@
 #include "waage.h"
 #include "MHZSensor.h"
 #include "wasser.h"
+#include "garage.h"
 
 #define UDPDEBUG 1
 #ifdef UDPDEBUG
@@ -38,6 +39,7 @@ struct tm timeinfo;
 char SDLog_Lasthour = -1;
 char SDLog_Lastmin = -1;
 char time_last_restart_day = -1;
+char SDLog_Lastday = -1;
 
 File sdcard;
 
@@ -52,6 +54,7 @@ int16_t storagecounter=0;
 Waage * waage;
 MHZSensor * mhzsensor;
 Wasser * wasser;
+Garage * garage;
 
 void setTimeZone(String TimeZone) {
   struct tm local;
@@ -166,6 +169,8 @@ void setup() {
     delay(2000);
   }
 
+  SDLog_Lastday = timeinfo.tm_mday;
+
  // DEVICES
   waage = new Waage();
   storage[storagecounter++] = waage;
@@ -173,6 +178,8 @@ void setup() {
   storage[storagecounter++] = mhzsensor;
   wasser = new Wasser();
   storage[storagecounter++] = wasser;
+  garage = new Garage();
+  storage[storagecounter++] = garage;
 
 // Web request handler
   server.on("/4DAction/Strom", handleStrom);
@@ -181,6 +188,8 @@ void setup() {
   server.begin();
 
   ReadAndParseLastLine();
+
+  logSDFile(true);
 
   Serial.println("all systems go...");
   UDBDebug("all systems go...");
@@ -214,8 +223,13 @@ void loop() {
       if (timeinfo.tm_hour != SDLog_Lasthour)  {
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
-        logSDFile();
+        logSDFile(false);
       }
+
+      if (timeinfo.tm_mday != SDLog_Lastday)  {
+        SDLog_Lastday = timeinfo.tm_mday;
+        logDaySDFile();
+      }      
 
 
       if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
@@ -231,6 +245,7 @@ void loop() {
 // size_t sent = server.streamFile(file, contentType);
 
 void handleStrom() {
+
   if (server.hasArg("Job"))  {
     Serial.println(server.arg("Job"));
     String job = server.arg("Job");
@@ -251,7 +266,7 @@ void handleStrom() {
           waage->NewScale(katze, Gewicht);
         }
 
-      server.send(200, "text/html", prepareHtmlPage());
+      server.send(200, "text/html", String("OK waage"));
       return;
     }  
 
@@ -266,11 +281,72 @@ void handleStrom() {
           String STemp = server.arg("Temp"); 
           temp = STemp.toFloat();
         }   
-        wasser->NewReport(counter, temp);     
+        wasser->NewReport(counter, temp);  
+        server.send(200, "text/html", String("OK wasser"));
+        return;   
     }
-  } 
 
-  server.send(200, "text/html", prepareHtmlPage());
+    if (job == "Garage") {
+        long counter = 0;
+        float temp = 127;
+        if (server.hasArg("Strom")) {
+          String SCounter = server.arg("Strom"); 
+          counter = SCounter.toInt();
+        }
+        if (server.hasArg("Temp2")) {
+          String STemp = server.arg("Temp2"); 
+          temp = STemp.toFloat();
+        }   
+        garage->NewReport(counter, temp);   
+        server.send(200, "text/html", String("OK Garage"));  
+        return;
+    }
+
+   if (job == "sendtemp") {
+        String name="";
+        String name2="";
+        if (server.hasArg("valuename")) {
+          name = server.arg("valuename"); 
+        }
+        String STemp = "127";
+        if (server.hasArg("value")) {
+          STemp = server.arg("value"); 
+        }
+        String SName2 = "";
+        if (server.hasArg("name")) {
+          name2 = server.arg("name"); 
+        }
+        if ((name == "Heizung") && (STemp != "127")) {
+          MQTT_Send("HomeServer/Heizung/Temp",STemp);
+          // Send MQTT ohne lokale Speicherung    
+          server.send(200, "text/html", String("OK temp"));  
+          return;
+        }
+        if ((name2 == "temp2_wz") && (name == "Temperature") && (STemp != "127")) {
+          MQTT_Send("HomeServer/WZ2/Temp",STemp);  
+          server.send(200, "text/html", String("OK temp"));  
+          return;
+        }
+        if ((name2 == "temp2_wz") && (name == "Humidity") && (STemp != "")) {
+          MQTT_Send("HomeServer/WZ2/Humidity",STemp);  
+          server.send(200, "text/html", String("OK temp"));  
+          return;
+        }
+      }
+
+    String message;
+    message = String("Error unknown job ")+job;
+    message += String(" url ");
+    message += String(server.uri());
+    message += String(" ip ");
+    message += server.client().remoteIP().toString();
+    server.send(404, "text/html", message);
+    UDBDebug(message); 
+
+    return;
+  } 
+  UDBDebug(String("Error job missing")); 
+  server.send(404, "text/html", String("Error job missing"));
 }
 
 void webdebug() {
@@ -341,7 +417,18 @@ String SDwriteHeader() {
   return data;
 }
 
-void logSDFile(void) {
+String SDDaywriteHeader() {
+  String data;
+  char buffer[100];
+  snprintf(buffer, 100, "+;%04d", timeinfo.tm_year+1900);
+  data = buffer;
+  for (int16_t i=0; i<storagecounter; i++) {
+    data = data + storage[i]->WriteDayHeader();
+  }
+  return data;
+}
+
+void logSDFile(bool headeronly) {
   char name[31];
   String data;
 
@@ -356,13 +443,48 @@ void logSDFile(void) {
     sdcard.println(data);  
   }
 
-  char buffer[500];
-  snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  if (headeronly) {
+    data = SDwriteHeader();
+    sdcard.println(data);  
+  }  
+  else 
+   {
+    char buffer[500];
+    snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+    data = buffer;
+
+    for (int16_t i=0; i<storagecounter; i++) {
+      data = data + storage[i]->WriteData();
+    }  
+    data += ';';
+    sdcard.println(data);
+  }  
+  sdcard.close();
+}
+
+void logDaySDFile(void) {
+  char name[31];
+  String data;
+
+  snprintf(name, 30, "/Year_%04d.txt", timeinfo.tm_year+1900);
+
+  if (SD.exists(name)) {
+    sdcard = SD.open(name, FILE_APPEND);
+  }
+  else{
+    sdcard = SD.open(name, FILE_WRITE);
+    data = SDDaywriteHeader();
+    sdcard.println(data);  
+  }
+
+  char buffer[100];
+  snprintf(buffer, 100, "#;%04d-%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday);
   data = buffer;
 
   for (int16_t i=0; i<storagecounter; i++) {
-    data = data + storage[i]->WriteData();
+    data = data + storage[i]->WriteDayData();
   }  
+  data += ';';
   sdcard.println(data);
   sdcard.close();
 }

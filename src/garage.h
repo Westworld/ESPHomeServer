@@ -1,28 +1,23 @@
-#ifndef WASSER_HPP_
-#define WASSER_HPP_
+#ifndef GARAGE_HPP_
+#define GARAGE_HPP_
 
 #include "storage.h"
 
-#define wasserAlert 3000000  // 300000 normal, 5 Minuten
-
-class Wasser: public Storage
+class Garage: public Storage
 {
     private:
         float temp=0;
         long counter=0;
-        long wasserstarted=0, lastwasser=0;
-        int8_t wasseralarm = 1;  // -1 Alarm, 1 aus, 0 normal
-        int16_t counter5min=0; long counter5minTime=0;
+        long counter5min=0; long counter5minTime=0;
         long counterday=0;
 
     public:
         void NewReport(long counter, float temp);
-        virtual void Run(int32_t zeit);
         virtual String serialize();
         virtual String WriteHeader();
         virtual String WriteData();   
         virtual String WriteDayHeader();
-        virtual String WriteDayData();
+        virtual String WriteDayData();   
         virtual String readLastLine(String &lastline);     
 };
 

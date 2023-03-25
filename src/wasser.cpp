@@ -3,16 +3,10 @@
 
 extern struct tm timeinfo;
 
-
-
-Wasser::Wasser() {
-    countercurday = timeinfo.tm_wday;
-}
-
 void Wasser::NewReport(long newcounter, float newtemp) {
     int32_t zeit = millis();
     lastUpdated = zeit;
-    UDBDebug("Wasser "+String(counter)+" "+String(temp));
+    //UDBDebug("Wasser "+String(counter)+" "+String(temp));
 
     if (newcounter != 0)
     {
@@ -27,24 +21,13 @@ void Wasser::NewReport(long newcounter, float newtemp) {
                 wasseralarm = -1;         
             }
         }
-        MQTT_Send((char const *) "HomeServer/Heizung/Wasser", counter); 
-
         // counter 5 min
         counter5min++;
-        if ((counter5minTime + 300000)<zeit) {
-            if (counter5min != 0) {
-                MQTT_Send((char const *) "HomeServer/Heizung/Wasser5min", counter5min); 
-                counter5min = 0;
-            }
-            counter5minTime = zeit;
-        }
+        counterday++; 
 
-        counterday++;
-        if (countercurday != timeinfo.tm_wday) {
-            countercurday = timeinfo.tm_wday;
-            MQTT_Send((char const *) "HomeServer/Heizung/WasserDay", counterday); 
-            counterday = 0;
-        }
+        MQTT_Send((char const *) "HomeServer/Heizung/Wasser", counter); 
+        MQTT_Send((char const *) "HomeServer/Heizung/WasserDay", counterday); 
+
     }
 
 
@@ -53,7 +36,7 @@ void Wasser::NewReport(long newcounter, float newtemp) {
         MQTT_Send((char const *) "HomeServer/Heizung/Temp", temp);
     }
 
-    UDBDebug(serialize());
+    //UDBDebug(serialize());
 }
 
 void Wasser::Run(int32_t zeit) {
@@ -66,6 +49,14 @@ void Wasser::Run(int32_t zeit) {
             }    
         }
     }  
+
+    if ((counter5minTime + 300000)<zeit) {
+            if (counter5min != 0) {
+                MQTT_Send((char const *) "HomeServer/Heizung/Wasser5min", counter5min); 
+                counter5min = 0;
+            }
+            counter5minTime = zeit;
+        }
 }
 
 String Wasser::serialize() {
@@ -87,10 +78,22 @@ String Wasser::WriteHeader() {
     return ";Wasser_Counter;Heizung_Temp;Wasser_Day";
 }
 
+String Wasser::WriteDayHeader() {
+    return ";Wasser_Day";
+}
+
 String Wasser::WriteData() {
   char buffer[100];
   snprintf(buffer, 100, ";%d;%.1f;%d", counter, temp, counterday);
-  return buffer;    
+  return String(buffer);    
+}
+
+String Wasser::WriteDayData() {
+  MQTT_Send((char const *) "HomeServer/Heizung/WasserDay", counterday); 
+  char buffer[100];
+  snprintf(buffer, 100, ";%d", counterday);
+  counterday = 0;
+  return String(buffer);    
 }
 
 String Wasser::readLastLine(String &lastline) {

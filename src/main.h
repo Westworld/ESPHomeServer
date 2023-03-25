@@ -7,11 +7,13 @@
 #include <HTTPClient.h>
 
 void MQTT_reconnect();
-void handleStrom(void);
+void handleStrom();
 void handleFile(void);
 String prepareHtmlPage(void);
 void setSDFileName(char * name);
-void logSDFile(void);
+void logSDFile(bool headeronly);
+void logDaySDFile(void);
+String SDDaywriteHeader();
 void WebSendDirList();
 String ReadLastLine();
 void ReadAndParseLastLine();

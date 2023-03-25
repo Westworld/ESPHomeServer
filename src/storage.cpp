@@ -16,8 +16,17 @@ String Storage::WriteHeader() {
     return ";storage";
 }
 
+String Storage::WriteDayHeader() {
+    return "";
+}
+
 String Storage::WriteData() {
     return ";storage";
+}
+
+
+String Storage::WriteDayData() {
+    return "";
 }
 
 String Storage::readLastLine(String &lastline) {
