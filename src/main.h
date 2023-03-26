@@ -5,6 +5,7 @@
 #include <time.h>  
 #include <ArduinoOTA.h>
 #include <HTTPClient.h>
+#include <ESP_Mail_Client.h>
 
 void MQTT_reconnect();
 void handleStrom();
@@ -24,3 +25,5 @@ void MQTT_Send(char const * topic, float value);
 void MQTT_Send(char const * topic, int16_t value);
 void MQTT_Send(char const * topic, long value);
 void MQTT_callback(char* topic, byte* payload, unsigned int length);
+void EMail_Send(String message);
+void smtpCallback(SMTP_Status status);

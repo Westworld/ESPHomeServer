@@ -5,6 +5,7 @@
 #include "SPI.h"
 #include <PubSubClient.h>
 
+
 #include <iostream>
 #include <fstream>
 
@@ -47,6 +48,13 @@ File sdcard;
 #define TXD2 26  // MHZ Sensor
 
 #define Touchsensor 12
+
+#define SMTP_HOST "smtp.gmail.com"
+#define SMTP_PORT 465
+/* The SMTP Session object used for Email sending */
+SMTPSession smtp;
+/* Callback function to get the Email sending status */
+void smtpCallback(SMTP_Status status);
 
 ESP32WebServer server(80);
 Storage * storage[10];
@@ -193,12 +201,17 @@ void setup() {
   server.on("/debug", webdebug);
   server.begin();
 
+  // Email
+  smtp.callback(smtpCallback);
+
   ReadAndParseLastLine();
 
   logSDFile(true);
 
   Serial.println("all systems go...");
   UDBDebug("all systems go...");
+
+  EMail_Send("all systems go...");
 }
 
 
@@ -658,5 +671,56 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
   }
   if (strcmp(topic,"garage/TargetDoorState/Mini")==0){
     UDBDebug("open Mini");
+  }
+}
+
+// EMAIL
+
+void EMail_Send(String textmessage) {
+/* Declare the session config data */
+  ESP_Mail_Session session;
+
+  /* Set the session config */
+  session.server.host_name = SMTP_HOST;
+  session.server.port = SMTP_PORT;
+  session.login.email = email_user;
+  session.login.password = email_pass;
+  session.login.user_domain = "kolonialwarenmuseum.de";
+
+  /* Declare the message class */
+  SMTP_Message message;
+
+  /* Set the message headers */
+  message.sender.name = "ESP";
+  message.sender.email = email_user;
+  message.subject = "HomeServer Alert";
+  message.addRecipient("Thomas Maul", email_user);
+
+  message.text.content = textmessage.c_str();
+  message.text.charSet = "us-ascii";
+  message.text.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
+
+  /* Connect to server with the session config */
+  if (!smtp.connect(&session))
+    return;
+
+  /* Start sending Email and close the session */
+  if (!MailClient.sendMail(&smtp, &message))
+    UDBDebug("Error sending Email, " + smtp.errorReason());
+}
+
+/* Callback function to get the Email sending status */
+void smtpCallback(SMTP_Status status)
+{
+  /* Print the current status */
+  UDBDebug(String(status.info()));
+
+  /* Print the sending result */
+  if (status.success())
+  {
+    UDBDebug("Message sent success: "+String(status.completedCount()));
+    UDBDebug("Message sent failed: "+String(status.failedCount()));
+    // You need to clear sending result as the memory usage will grow up.
+    smtp.sendingResult.clear();
   }
 }
