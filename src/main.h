@@ -14,7 +14,7 @@ void setSDFileName(char * name);
 void logSDFile(bool headeronly);
 void logDaySDFile(void);
 String SDDaywriteHeader();
-void WebSendDirList();
+void WebSendDirList(bool textonly);
 String ReadLastLine();
 void ReadAndParseLastLine();
 void webdebug(void);

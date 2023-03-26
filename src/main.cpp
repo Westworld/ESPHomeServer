@@ -369,6 +369,8 @@ void webdebug() {
 }
 
 void handleFile() {
+  // http://esphomeserver.fritz.box/sendfile?File=Data_2023_02.txt
+  //http://esphomeserver.fritz.box/sendfile?Folder
   if (server.hasArg("File"))  {
     Serial.println(server.arg("File"));
     String job = "/"+server.arg("File");
@@ -383,7 +385,13 @@ void handleFile() {
       server.send(200, "text/html", "File not found");
   }  
   else   {
-          WebSendDirList();
+    if (server.hasArg("Folder"))  {
+        WebSendDirList(true);
+    }    
+    else
+    {  // irgendeinen anderen Namen
+        WebSendDirList(false);
+    }
   }
     
 }
@@ -499,13 +507,17 @@ void logDaySDFile(void) {
   sdcard.close();
 }
 
-void WebSendDirList()
+void WebSendDirList(bool textonly)
 {  
   String dirchar = "/";
   String content = "";
   File root;
 
-  String answer =  String("<!DOCTYPE HTML><html><body>");
+  String answer;
+  if (textonly)
+   answer = "";
+  else
+   answer =  String("<!DOCTYPE HTML><html><body>");
 
   root = SD.open("/");
   while (true)
@@ -530,11 +542,15 @@ void WebSendDirList()
       String filename = entry.name();
       if (filename.startsWith(".")) continue;
       //filename = dirchar + filename;
-      answer = answer + String("<a href=\"/sendfile?File=")+filename +String("\">")+filename + String("</a><br>\r\n");
+      if (textonly)
+        answer = answer + filename + String('\t')+String(entry.size())+String('\n');
+      else
+        answer = answer + String("<a href=\"/sendfile?File=")+filename+String("\">")+filename + String(" - ")+String(entry.size())+String("</a><br>\r\n");
       entry.close();
     }
   }
-  answer =  answer + String("</body></html>\r\n");
+  if (!textonly)
+    answer =  answer + String("</body></html>\r\n");
   server.send(200, "text/html", answer);
 }
 
