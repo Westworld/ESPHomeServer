@@ -16,9 +16,11 @@ void Wasser::NewReport(long newcounter, float newtemp) {
         else {
             if ((wasserstarted + wasserAlert)< zeit) {
                 // alarm !
-                if (wasseralarm == 0)
-                    MQTT_Send((char const *) "HomeServer/Heizung/WasserAlarm", 1L);   
-                wasseralarm = -1;         
+                if (wasseralarm == 0) {
+                    EMail_Send("HomeServer/Heizung/WasserAlarm");
+                    // MQTT_Send((char const *) "HomeServer/Heizung/WasserAlarm", 1L);   
+                    wasseralarm = 1;    
+                }     
             }
         }
         counterday++; 
@@ -32,6 +34,10 @@ void Wasser::NewReport(long newcounter, float newtemp) {
     if (newtemp != 127) {
         temp = newtemp;
         MQTT_Send((char const *) "HomeServer/Heizung/Temp", temp);
+        if (temp>20) {
+            EMail_Send("HomeServer/Heizung/WasserAlarm");
+            heizungTempAlarm = 1; 
+        }
     }
 
     //UDBDebug(serialize());
@@ -42,7 +48,7 @@ void Wasser::Run(int32_t zeit) {
         if ((lastwasser + 30000)< zeit) {  // 30 Sekunden ohne Wasser
             wasserstarted = 0;
             if (wasseralarm  != 0) {
-                MQTT_Send((char const *) "HomeServer/Heizung/WasserAlarm", 0L); 
+                //MQTT_Send((char const *) "HomeServer/Heizung/WasserAlarm", 0L); 
                 wasseralarm = 0;
             }    
         }
@@ -83,6 +89,8 @@ String Wasser::WriteDayData() {
   char buffer[100];
   snprintf(buffer, 100, ";%d", counterday);
   counterday = 0;
+  heizungTempAlarm = 0;
+  wasseralarm = 0;
   return String(buffer);    
 }
 

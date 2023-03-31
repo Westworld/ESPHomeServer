@@ -6,6 +6,7 @@ extern void MQTT_Send(char const * topic, float value);
 extern void MQTT_Send(char const * topic, int16_t value);
 extern void MQTT_Send(char const * topic, long value);
 extern void MQTT_Send(char const * topic, String value);
+extern void EMail_Send(String textmessage);
 
 class Storage
 {

@@ -62,7 +62,7 @@ void Waage::NewScale(wer welchewaage, float fGewicht) {
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Mika", Mika); 
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Matti", Matti); 
         }
-        //UDBDebug(serialize());
+        UDBDebug(serialize());
     }
 
     if (fGewicht>2) {

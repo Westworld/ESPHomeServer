@@ -14,6 +14,8 @@
 #include "wasser.h"
 #include "garage.h"
 
+extern void Homematic_Set(String device, int8_t status);
+
 #define UDPDEBUG 1
 #ifdef UDPDEBUG
 WiFiUDP udp;
@@ -211,7 +213,7 @@ void setup() {
   Serial.println("all systems go...");
   UDBDebug("all systems go...");
 
-  EMail_Send("all systems go...");
+  //EMail_Send("all systems go...");
 }
 
 
@@ -322,6 +324,33 @@ void handleStrom() {
         } 
         garage->NewReport(counter, temp, Button);   
         server.send(200, "text/html", String("OK Garage"));  
+        return;
+    }
+
+   if (job == "Licht") {
+        String was="";
+        int welchesLicht=0;
+        if (server.hasArg("Was")) {
+          was = server.arg("Was"); 
+          welchesLicht = was.toInt();
+          switch (welchesLicht) {
+            case 1:
+              Homematic_Set("Dach", 2);
+              break;
+            case 2:
+              Homematic_Set("Bad", 2);
+              break;
+            case 3:
+              //Homematic_Set("Dach", 2);
+              break;
+            case 4:
+              Homematic_Set("Lichtwarner_SZ", 0);
+              break;
+            default:
+              ;  // nothing  
+          }
+        }        
+        server.send(200, "text/html", String("OK Licht"));  
         return;
     }
 
@@ -636,7 +665,7 @@ void UDBDebug(String message) {
 }
 
 void MQTT_Send(char const * topic, String value) {
-    UDBDebug("MQTT " +String(topic)+" "+value);  
+    //UDBDebug("MQTT " +String(topic)+" "+value);  
     if (!mqttclient.publish(topic, value.c_str(), true)) {
        UDBDebug("MQTT error");  
     };
@@ -722,5 +751,27 @@ void smtpCallback(SMTP_Status status)
     UDBDebug("Message sent failed: "+String(status.failedCount()));
     // You need to clear sending result as the memory usage will grow up.
     smtp.sendingResult.clear();
+  }
+}
+
+
+void HTTP_Send(String host, int httpPort, String url) {
+
+  WiFiClient client;
+  if (!client.connect(host.c_str(), httpPort)) {   
+    return;
+  }
+
+  UDBDebug("HTTP_Send: "+host+url);
+
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
+  unsigned long timeout = millis();
+  while (client.available() == 0) {
+    if (millis() - timeout > 1000) {    
+      client.stop();
+      return;
+    }
   }
 }
