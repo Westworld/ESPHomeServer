@@ -1,11 +1,11 @@
 #ifndef WASSER_HPP_
 #define WASSER_HPP_
 
-#include "storage.h"
+#include "Sensor.h"
 
 #define wasserAlert 3000000  // 300000 normal, 5 Minuten
 
-class Wasser: public Storage
+class Wasser: public Sensor
 {
     private:
         float temp=0;

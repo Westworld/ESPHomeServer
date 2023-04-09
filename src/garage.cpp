@@ -51,6 +51,9 @@ void Garage::SetGarageDoorNew(int8_t Seite, int8_t Zustand, String ZustandBild) 
         strncpy(BMWBild, ZustandBild.c_str(), 5);
         MQTT_Send("garage/CurrentDoorState/BMW", (int16_t) Zustand);
         MQTT_Send("garage/CurrentDoorState/BMWBild", ZustandBild);
+        if (Zustand == Zu) {
+            
+        }
     }
     else {
         // Mini

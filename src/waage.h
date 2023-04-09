@@ -1,9 +1,9 @@
 #ifndef WAAGE_HPP_
 #define WAAGE_HPP_
 
-#include "storage.h"
+#include "Sensor.h"
 
-class Waage: public Storage
+class Waage: public Sensor
 {
     private:
         float Buddy=0, Mika=0, Matti=0, Timmi=0;

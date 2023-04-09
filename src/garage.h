@@ -1,9 +1,9 @@
 #ifndef GARAGE_HPP_
 #define GARAGE_HPP_
 
-#include "storage.h"
+#include "Sensor.h"
 
-class Garage: public Storage
+class Garage: public Sensor
 {
     private:
         float temp=0;

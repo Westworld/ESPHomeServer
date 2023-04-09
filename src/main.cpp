@@ -4,6 +4,7 @@
 #include "SD.h"
 #include "SPI.h"
 #include <PubSubClient.h>
+#include <HTTPClient.h>
 
 
 #include <iostream>
@@ -34,7 +35,7 @@ const char* host = "http://192.168.0.34";
 const int httpPort = 80;
 
 
-const char* mqtt_server = "192.168.0.57";
+const char* mqtt_server = "192.168.0.46";
 // MQTT_User and MQTT_Pass defined via platform.ini, external file, not uploaded to github
 PubSubClient mqttclient(wifiClient);
 
@@ -59,8 +60,8 @@ SMTPSession smtp;
 void smtpCallback(SMTP_Status status);
 
 ESP32WebServer server(80);
-Storage * storage[10];
-int16_t storagecounter=0;
+Sensor * sensor[10];
+int16_t sensorcounter=0;
 Waage * waage;
 MHZSensor * mhzsensor;
 Wasser * wasser;
@@ -134,6 +135,8 @@ void setup() {
 
   setTimeZone(MY_TZ);
 
+  UDBDebug("start - vor SDCard");
+
   if(!SD.begin(5)){
     Serial.println("Card Mount Failed");
   }
@@ -160,12 +163,13 @@ void setup() {
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
+  UDBDebug("SD Card Size: "+String(cardSize));
 
  // MQTT
  Serial.printf("vor MQTT");
     mqttclient.setServer(mqtt_server, 1883);
     mqttclient.setCallback(MQTT_callback);
-   Serial.printf("nach MQTT");
+   Serial.printf("nach MQTT1");
    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       //mqttclient.publish("outTopic","hello world");
       UDBDebug("MQTT connect successful"); 
@@ -178,7 +182,7 @@ void setup() {
     else
        UDBDebug("MQTT connect error");  
 
-   Serial.printf("nach MQTT");   
+   Serial.printf("nach MQTT2");   
 
   while (!getLocalTime(&timeinfo)) {
     UDBDebug("error getLocalTime"); 
@@ -189,13 +193,13 @@ void setup() {
 
  // DEVICES
   waage = new Waage();
-  storage[storagecounter++] = waage;
+  sensor[sensorcounter++] = waage;
   mhzsensor = new MHZSensor(&Serial2);
-  storage[storagecounter++] = mhzsensor;
+  sensor[sensorcounter++] = mhzsensor;
   wasser = new Wasser();
-  storage[storagecounter++] = wasser;
+  sensor[sensorcounter++] = wasser;
   garage = new Garage();
-  storage[storagecounter++] = garage;
+  sensor[sensorcounter++] = garage;
 
 // Web request handler
   server.on("/4DAction/Strom", handleStrom);
@@ -231,8 +235,8 @@ void loop() {
   };
 
   int32_t zeit = millis();
-  for (int16_t i=0; i<storagecounter;i++) {  
-    storage[i]->Run(zeit);
+  for (int16_t i=0; i<sensorcounter;i++) {  
+    sensor[i]->Run(zeit);
   }
 
   if(!getLocalTime(&timeinfo)){
@@ -268,16 +272,14 @@ void loop() {
 void handleStrom() {
 
   if (server.hasArg("Job"))  {
-    Serial.println(server.arg("Job"));
+    //Serial.println(server.arg("Job"));
     String job = server.arg("Job");
-    if ((job == "Timmi") || (job.startsWith("Scale")) ) {
+    if (job.startsWith("Scale")) {
        if (!server.hasArg("Gewicht")) 
           return;
       String SGewicht = server.arg("Gewicht"); 
       float Gewicht = SGewicht.toFloat();
-      if (job == "Timmi")
-        waage->NewScale(Waage::warTimmi, Gewicht);
-      else {
+
         String Katze = job.substring(5);
         Waage::wer katze = Waage::unbekannt;
         if (Katze == "Buddy") katze = Waage::warBuddy;
@@ -285,7 +287,7 @@ void handleStrom() {
         if (Katze == "Matti") katze = Waage::warMatti;
         if (katze != Waage::unbekannt)
           waage->NewScale(katze, Gewicht);
-        }
+
 
       server.send(200, "text/html", String("OK waage"));
       return;
@@ -328,11 +330,13 @@ void handleStrom() {
     }
 
    if (job == "Licht") {
+     UDBDebug("Licht" );
         String was="";
         int welchesLicht=0;
         if (server.hasArg("Was")) {
           was = server.arg("Was"); 
           welchesLicht = was.toInt();
+          UDBDebug("Licht Was: "+was+" - "+String(welchesLicht));
           switch (welchesLicht) {
             case 1:
               Homematic_Set("Dach", 2);
@@ -403,8 +407,8 @@ void handleStrom() {
 
 void webdebug() {
   String message= "";
-  for (int16_t i=0; i<storagecounter; i++) {
-    message = message + storage[i]->serialize() + "\n";
+  for (int16_t i=0; i<sensorcounter; i++) {
+    message = message + sensor[i]->serialize() + "\n";
   }
 
   server.send(200, "text/plain", message);
@@ -463,16 +467,16 @@ String prepareHtmlPage() {
 // on boot, load last values (needed with battery?)
 
 void SDsetFileName(char * name) {
-  snprintf(name, 30, "/Data_%04d_%02d.txt", timeinfo.tm_year+1900, timeinfo.tm_mon);
+  snprintf(name, 30, "/Data_%04d_%02d.txt", timeinfo.tm_year+1900, timeinfo.tm_mon+1);
 }
 
 String SDwriteHeader() {
   String data;
   char buffer[100];
-  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
   data = buffer;
-  for (int16_t i=0; i<storagecounter; i++) {
-    data = data + storage[i]->WriteHeader();
+  for (int16_t i=0; i<sensorcounter; i++) {
+    data = data + sensor[i]->WriteHeader();
   }
   return data;
 }
@@ -482,8 +486,8 @@ String SDDaywriteHeader() {
   char buffer[100];
   snprintf(buffer, 100, "+;%04d", timeinfo.tm_year+1900);
   data = buffer;
-  for (int16_t i=0; i<storagecounter; i++) {
-    data = data + storage[i]->WriteDayHeader();
+  for (int16_t i=0; i<sensorcounter; i++) {
+    data = data + sensor[i]->WriteDayHeader();
   }
   return data;
 }
@@ -510,11 +514,11 @@ void logSDFile(bool headeronly) {
   else 
    {
     char buffer[500];
-    snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+    snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
     data = buffer;
 
-    for (int16_t i=0; i<storagecounter; i++) {
-      data = data + storage[i]->WriteData();
+    for (int16_t i=0; i<sensorcounter; i++) {
+      data = data + sensor[i]->WriteData();
     }  
     data += ';';
     sdcard.println(data);
@@ -538,11 +542,11 @@ void logDaySDFile(void) {
   }
 
   char buffer[100];
-  snprintf(buffer, 100, "#;%04d-%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon, timeinfo.tm_mday);
+  snprintf(buffer, 100, "#;%04d-%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday);
   data = buffer;
 
-  for (int16_t i=0; i<storagecounter; i++) {
-    data = data + storage[i]->WriteDayData();
+  for (int16_t i=0; i<sensorcounter; i++) {
+    data = data + sensor[i]->WriteDayData();
   }  
   data += ';';
   sdcard.println(data);
@@ -608,7 +612,7 @@ String ReadLastLine()
     else {
       sdcard = SD.open(name, FILE_READ);
       size_t filesize = sdcard.size();
-      Serial.println(filesize);
+      //Serial.println(filesize);
       sdcard.seek(filesize-2);
 
           bool keepLooping = true;
@@ -626,7 +630,7 @@ String ReadLastLine()
               }
               else {                                  // If the data was neither a newline nor at the 0 byte
                   sdcard.seek(sdcard.position()-2);        // Move to the front of that data, then to the front of the data before it
-                  Serial.print("new: ");Serial.println(sdcard.position());
+                  //Serial.print("new: ");Serial.println(sdcard.position());
               }
           }
 
@@ -647,9 +651,9 @@ void ReadAndParseLastLine() {
     int16_t pos = lastline.indexOf(';');
     if(pos >= 0) {
       lastline = lastline.substring(pos+1);
-      for (int16_t i=0; i<storagecounter;i++) {  
-        lastline = storage[i]->readLastLine(lastline);  // first ; already removed
-        UDBDebug(storage[i]->serialize());
+      for (int16_t i=0; i<sensorcounter;i++) {  
+        lastline = sensor[i]->readLastLine(lastline);  // first ; already removed
+        UDBDebug(sensor[i]->serialize());
         UDBDebug(lastline);
       }
     }
@@ -665,7 +669,8 @@ void UDBDebug(String message) {
 }
 
 void MQTT_Send(char const * topic, String value) {
-    //UDBDebug("MQTT " +String(topic)+" "+value);  
+    UDBDebug("MQTT " +String(topic)+" "+value); 
+    //Serial.println("MQTT " +String(topic)+" "+value) ;
     if (!mqttclient.publish(topic, value.c_str(), true)) {
        UDBDebug("MQTT error");  
     };
@@ -697,9 +702,11 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
   UDBDebug(message +" - "+value);
   if (strcmp(topic,"garage/TargetDoorState/BMW")==0){
     UDBDebug("open BMW");
+    return;
   }
   if (strcmp(topic,"garage/TargetDoorState/Mini")==0){
     UDBDebug("open Mini");
+    return;
   }
 }
 
@@ -714,7 +721,7 @@ void EMail_Send(String textmessage) {
   session.server.port = SMTP_PORT;
   session.login.email = email_user;
   session.login.password = email_pass;
-  session.login.user_domain = "kolonialwarenmuseum.de";
+  session.login.user_domain = email_domain;
 
   /* Declare the message class */
   SMTP_Message message;
@@ -722,8 +729,8 @@ void EMail_Send(String textmessage) {
   /* Set the message headers */
   message.sender.name = "ESP";
   message.sender.email = email_user;
-  message.subject = "HomeServer Alert";
-  message.addRecipient("Thomas Maul", email_user);
+  message.subject = F("HomeServer Alert");
+  message.addRecipient(email_pass, email_user);
 
   message.text.content = textmessage.c_str();
   message.text.charSet = "us-ascii";
@@ -755,23 +762,26 @@ void smtpCallback(SMTP_Status status)
 }
 
 
-void HTTP_Send(String host, int httpPort, String url) {
+void HTTP_Send(String url) {
 
-  WiFiClient client;
-  if (!client.connect(host.c_str(), httpPort)) {   
-    return;
+  HTTPClient http;
+
+  UDBDebug(url);
+  
+  // Your Domain name with URL path or IP address with path
+  http.begin(url.c_str());
+  http.setAuthorization(red_user, red_pass);
+  int httpResponseCode = http.GET();
+  
+  if (httpResponseCode>0) {
+    UDBDebug("HTTP Response code: "+String(httpResponseCode));
+    Serial.println(httpResponseCode);
+    String payload = http.getString();
+    UDBDebug(payload);
   }
-
-  UDBDebug("HTTP_Send: "+host+url);
-
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" + 
-               "Connection: close\r\n\r\n");
-  unsigned long timeout = millis();
-  while (client.available() == 0) {
-    if (millis() - timeout > 1000) {    
-      client.stop();
-      return;
-    }
+  else {
+    UDBDebug("HTTP Error code "+String(httpResponseCode));
   }
+  // Free resources
+  http.end();
 }

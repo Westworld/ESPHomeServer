@@ -1,12 +1,12 @@
 #ifndef MHZSensor_HPP_
 #define MHZSensor_HPP_
 
-#include "storage.h"
+#include "Sensor.h"
 #include <MHZ19.h>
 
 #define repeatTimer 60000
 
-class MHZSensor: public Storage
+class MHZSensor: public Sensor
 {
     private:
         int16_t Co2, temp, Accuracy;

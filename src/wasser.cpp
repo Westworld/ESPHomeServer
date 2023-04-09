@@ -35,7 +35,7 @@ void Wasser::NewReport(long newcounter, float newtemp) {
         temp = newtemp;
         MQTT_Send((char const *) "HomeServer/Heizung/Temp", temp);
         if (temp>20) {
-            EMail_Send("HomeServer/Heizung/WasserAlarm");
+            EMail_Send("HomeServer/Heizung/TempAlarm");
             heizungTempAlarm = 1; 
         }
     }

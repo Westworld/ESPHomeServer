@@ -1,5 +1,5 @@
-#ifndef STORAGE_HPP_
-#define STORAGE_HPP_
+#ifndef Sensor_HPP_
+#define Sensor_HPP_
 
 extern void UDBDebug(String message);
 extern void MQTT_Send(char const * topic, float value); 
@@ -8,7 +8,7 @@ extern void MQTT_Send(char const * topic, long value);
 extern void MQTT_Send(char const * topic, String value);
 extern void EMail_Send(String textmessage);
 
-class Storage
+class Sensor
 {
     protected:
         int32_t lastUpdated=0;
