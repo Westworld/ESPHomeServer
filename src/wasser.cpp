@@ -36,7 +36,7 @@ bool Wasser::HandleMQTT(String message, short joblength, String value) {
 String Wasser::serialize() {
     String result="";
 
-    result = "Counter = ";
+    result = "Wasser Counter = ";
     result += counter;
     result += ", DayCounter = ";
     result += counterday;    

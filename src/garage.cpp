@@ -195,7 +195,7 @@ void Garage::SetGarageDoor(String door) {
 String Garage::serialize() {
     String result="";
 
-    result = "Counter = ";
+    result = "Garage Counter = ";
     result += counter;
     result += ", DayCounter = ";
     result += counterday;    

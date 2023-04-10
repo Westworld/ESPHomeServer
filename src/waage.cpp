@@ -20,14 +20,12 @@ bool Waage::HandleMQTT(String message, short joblength, String value) {
         if (message == IsTimmi) {
             Timmi = value.toFloat(); 
             lastUpdateTimmi = timeinfo.tm_yday;
-            UDBDebug("DEBUG: Timmi erhalten über MQTT "+value);
             return true;
         }
         if (message == IsBuddy) {
             Buddy = value.toFloat(); 
             lastUpdateBuddy = timeinfo.tm_yday;
             tag_Buddy_last = millis();  
-            UDBDebug("DEBUG: Buddy erhalten über MQTT "+value);
             CheckTagUpdate();
             return true;
         }
@@ -35,7 +33,6 @@ bool Waage::HandleMQTT(String message, short joblength, String value) {
             Matti = value.toFloat(); 
             tag_Matti_last = millis();  
             lastUpdateMatti = timeinfo.tm_yday;
-            UDBDebug("DEBUG: Matti erhalten über MQTT "+value);
             CheckTagUpdate();
             return true;
         }
@@ -45,7 +42,6 @@ bool Waage::HandleMQTT(String message, short joblength, String value) {
             Mika = value.toFloat(); 
             tag_Mika_last = millis();  
             lastUpdateMika = timeinfo.tm_yday;
-            UDBDebug("DEBUG: Mika erhalten über MQTT "+value);
             CheckTagUpdate();
             return true;
         }        
