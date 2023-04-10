@@ -69,25 +69,3 @@ String MHZSensor::serialize() {
     result += lastUpdated;
     return result;
 }
-
-String MHZSensor::WriteHeader() {
-    return ";CO2;Temp";
-}
-
-String MHZSensor::WriteData() {
-  char buffer[100];
-  snprintf(buffer, 100, ";%d;%d", Co2, temp);
-  return buffer;    
-}
-
-String MHZSensor::readLastLine(String &lastline) {
-    // first ; already removed
-    int16_t index = 0;
-    float fCo2, ftemp = 0;
-    if (!get_token_Stored_Data(lastline, fCo2)) return "";
-    Co2 = fCo2;
-    if (!get_token_Stored_Data(lastline, ftemp)) return "";
-    temp = ftemp;
-    return lastline;
-
-}

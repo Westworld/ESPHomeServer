@@ -6,13 +6,14 @@ extern struct tm timeinfo;
 
 
 bool Wasser::HandleMQTT(String message, short joblength, String value) {
+
+
   const char IsDay[] = "HomeServer/Heizung/WasserDay";
   const char IsCounter[] = "HomeServer/Heizung/Wasser";
 
   switch (joblength) {
     case sizeof(IsDay):
         if (message == IsDay) {
-            UDBDebug("Debug Wasser MQTT day "+value);
             counterday = value.toFloat(); 
             lastUpdated = millis();
             return true;

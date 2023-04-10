@@ -16,8 +16,15 @@
 #include "garage.h"
 
 /*
+selbst: http://192.168.0.59/
+http://esphomeserver.fritz.box/sendfile?Folder
+
 Rolladen 3 - Lets do it - 192.168.0.85
 Dreamer Power - 192.168.0.107
+Waschmaschine - 192.168.0.111
+Rule1 war:
+15:06:46 MQT: Haus/Waschmaschine/RESULT = {"Rule1":"ON","Once":"OFF","StopOnError":"OFF","Free":317,"Rules":"on Power1#State=1 do websend [192.168.0.34:8000] /4DAction/Strom?job=Waschmaschine&power=1 endon on Power1#State=0 do websend [192.168.0.34:8000] /4DAction/Strom?job=Waschmaschine&power=0 endon "}
+
 
 */
 
@@ -636,7 +643,7 @@ void MQTT_Send(char const * topic, long value) {
 void MQTT_callback(char* topic, byte* payload, unsigned int length) {
 
     String message = String(topic);
-    int8_t joblength = message.length();
+    int8_t joblength = message.length()+1;// 0 char
     payload[length] = '\0';
     String value = String((char *) payload);
     //UDBDebug(message +" - "+value);
@@ -645,6 +652,9 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
         if (sensor[i]->HandleMQTT(message, joblength, value))
           return;
       }
+
+    if (message.startsWith("HomeServer/Heizung") )  
+      UDBDebug("DEBUG### "+message +" - "+value);
 }
 
 // EMAIL

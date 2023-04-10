@@ -197,8 +197,6 @@ String Garage::serialize() {
 
     result = "Counter = ";
     result += counter;
-    result += ", Temp = ";
-    result += temp;
     result += ", DayCounter = ";
     result += counterday;    
     result += "\nLastUpdate = ";
@@ -208,7 +206,7 @@ String Garage::serialize() {
 }
 
 String Garage::WriteHeader() {
-    return ";Garage_Counter;Garage_Temp;Garage_Day";
+    return ";Garage_Counter;Garage_Day";
 }
 
 String Garage::WriteDayHeader() {
@@ -217,7 +215,7 @@ String Garage::WriteDayHeader() {
 
 String Garage::WriteData() {
   char buffer[100];
-  snprintf(buffer, 100, ";%d;%.1f;%d", counter, temp, counterday);
+  snprintf(buffer, 100, ";%d;%d", counter, counterday);
   return buffer;    
 }
 
@@ -235,7 +233,6 @@ String Garage::readLastLine(String &lastline) {
     float result = 0;
     if (!get_token_Stored_Data(lastline, result)) return "";
     counter = result;
-    if (!get_token_Stored_Data(lastline, temp)) return "";
     if (!get_token_Stored_Data(lastline, result)) return "";
     counterday = result;
     return lastline;
