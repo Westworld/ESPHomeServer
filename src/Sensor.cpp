@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "Sensor.h"
 
+extern ESP32WebServer server;
 
 String Sensor::serialize() {
     String result="";
@@ -10,6 +11,14 @@ String Sensor::serialize() {
 
 void Sensor::Run(int32_t zeit) {
     //Serial.print("Sensor: ");//+zeit);
+}
+
+bool Sensor::HandleWebCall(String Job, short strlenr) {
+    return false;
+}
+
+bool Sensor::HandleMQTT(String message, short joblength, String value) {
+    return false;
 }
 
 String Sensor::WriteHeader() {

@@ -1,6 +1,8 @@
 #ifndef Sensor_HPP_
 #define Sensor_HPP_
 
+#include <ESP32WebServer.h>
+
 extern void UDBDebug(String message);
 extern void MQTT_Send(char const * topic, float value); 
 extern void MQTT_Send(char const * topic, int16_t value);
@@ -16,6 +18,8 @@ class Sensor
     public:
         virtual String serialize();
         virtual void Run(int32_t zeit);
+        virtual bool HandleWebCall(String Job, short strlen);
+        virtual bool HandleMQTT(String message, short joblength, String value);
         virtual String WriteHeader();
         virtual String WriteDayHeader(); 
         virtual String WriteData();

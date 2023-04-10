@@ -10,15 +10,16 @@ class Waage: public Sensor
         float tag_Buddy=0, tag_Mika=0, tag_Matti=0;
         int32_t tag_Buddy_last=0, tag_Mika_last=0, tag_Matti_last=0;
         int16_t lastUpdateBuddy, lastUpdateMika, lastUpdateMatti, lastUpdateTimmi;
+        void CheckTagUpdate();
 
     public:
         Waage();
         enum  wer { warBuddy=0, warMika, warMatti, warTimmi, unbekannt };
-        void NewScale(wer welchewaage, float Gewicht);
         virtual String serialize();
         virtual String WriteHeader();
         virtual String WriteData();  
-        virtual void run(int32_t zeit); 
+        virtual void run(int32_t zeit);
+        virtual bool HandleMQTT(String message, short joblength, String value);
         virtual String WriteDayHeader();
         virtual String WriteDayData();  
         virtual String readLastLine(String &lastline);     

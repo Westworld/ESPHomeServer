@@ -2,6 +2,56 @@
 #include "Garage.h"
 
 extern struct tm timeinfo;
+extern ESP32WebServer server;
+
+bool Garage::HandleWebCall(String job, short strlen) {
+    if (job == "Garage") {
+        long counter = 0;
+        float temp = 127;
+        String Button="";
+        if (server.hasArg("Strom")) {
+          String SCounter = server.arg("Strom"); 
+          counter = SCounter.toInt();
+        }
+        if (server.hasArg("Temp2")) {
+          String STemp = server.arg("Temp2"); 
+          temp = STemp.toFloat();
+        }   
+        if (server.hasArg("Button")) {
+          Button = server.arg("Button"); 
+        } 
+        NewReport(counter, temp, Button);   
+        server.send(200, "text/html", String("OK Garage"));  
+        return true;
+    }
+
+    return false;
+}
+
+bool Garage::HandleMQTT(String message, short joblength, String value) {
+  const char IsLeft[] = "garage/TargetDoorState/BMW";
+  const char IsRight[] = "garage/TargetDoorState/Mini";
+
+  switch (joblength) {
+    case sizeof(IsLeft):
+        if (message == IsLeft) {
+            UDBDebug("open BMW");
+            EMail_Send("HomeKit Open VW Garage"); 
+            return true;
+        }
+        break;
+    case sizeof(IsRight):
+        if (message == IsRight) {
+            UDBDebug("open Mini");
+            return true;
+        }
+        break;
+    default:
+        break;
+  }
+
+  return false;
+}
 
 void Garage::NewReport(long newcounter, float newtemp, String Button) {
     int32_t zeit = millis();
@@ -27,7 +77,21 @@ void Garage::NewReport(long newcounter, float newtemp, String Button) {
 
     if (newtemp != 127) {
         temp = newtemp;
-        MQTT_Send((char const *) "HomeServer/Garage/Temp", temp);
+            if (lasttemp == temp) {
+             if (tempcounter++ > 60)   {
+                //MQTT_Send((char const *) "HomeServer/Garage/Temp", temp);
+                MQTT_Send("hm/set/CUX9002004:1/SET_TEMPERATURE",temp);  
+                tempcounter = 0;
+                }
+            }
+            else {
+                //MQTT_Send((char const *) "HomeServer/Garage/Temp", temp); 
+                MQTT_Send("hm/set/CUX9002004:1/SET_TEMPERATURE",temp);  
+                tempcounter = 0;
+            }
+            lasttemp = temp;  
+
+        
     }
 
     if (Button != "") {

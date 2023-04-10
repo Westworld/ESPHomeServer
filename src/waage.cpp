@@ -2,58 +2,61 @@
 #include "waage.h"
 
 extern struct tm timeinfo;
+extern ESP32WebServer server;
 
 Waage::Waage(void) {
     lastUpdateBuddy = lastUpdateMika = lastUpdateMatti = lastUpdateTimmi = timeinfo.tm_yday;
 }
 
-void Waage::NewScale(wer welchewaage, float fGewicht) {
-    int32_t zeit = millis();
-    lastUpdated = zeit;
-    //UDBDebug(String(welchewaage)+" "+String(fGewicht));
 
-    if ((fGewicht > 5) ) {
+bool Waage::HandleMQTT(String message, short joblength, String value) {
+  const char IsTimmi[] = "HomeServer/Tiere/Timmi";
+  const char IsBuddy[] = "HomeServer/Tiere/Buddy";
+  const char IsMatti[] = "HomeServer/Tiere/Matti";
+  const char IsMika[] = "HomeServer/Tiere/Mika";
 
-        switch (welchewaage) {
-            case warBuddy : 
-                if ((fGewicht>6.0) & (fGewicht<6.8)) {
-                    Buddy = fGewicht; 
-                    tag_Buddy_last = zeit;  
-                    lastUpdateBuddy = timeinfo.tm_yday;
-                    MQTT_Send((char const *) "HomeServer/Tiere/Buddy", fGewicht); 
-                }        
-                break;
-            case warMika : 
-                fGewicht = fGewicht*1.01;
-                if ((fGewicht>6.4) & (fGewicht<7.2)) {       
-                    Mika = fGewicht;
-                    MQTT_Send((char const *) "HomeServer/Tiere/Mika", fGewicht);          
-                    lastUpdateMika = timeinfo.tm_yday;                
-                    tag_Mika_last = zeit;
-                }    
-                break;
-            case warMatti : 
-                fGewicht = fGewicht*0.99;
-                if ((fGewicht>6.9) & (fGewicht<7.5)) {
-                    Matti = fGewicht;
-                    lastUpdateMatti = timeinfo.tm_yday;
-                    MQTT_Send((char const *) "HomeServer/Tiere/Matti", fGewicht); 
-                    tag_Matti_last = zeit;
-                }    
-                break;
-            case warTimmi : 
-                fGewicht = fGewicht * 0.89;
-                if ((fGewicht>8.2) & (fGewicht<9)) {
-                    Timmi = fGewicht; 
-                    lastUpdateTimmi = timeinfo.tm_yday;
-                    MQTT_Send((char const *) "HomeServer/Tiere/Timmi", fGewicht); 
-                }    
-                break;
+  switch (joblength) {
+    case sizeof(IsTimmi):  /* wie isBuddy und Matti */
+        if (message == IsTimmi) {
+            Timmi = value.toFloat(); 
+            lastUpdateTimmi = timeinfo.tm_yday;
+            UDBDebug("DEBUG: Timmi erhalten über MQTT "+value);
+            return true;
         }
-        //UDBDebug(String(fGewicht));
+        if (message == IsBuddy) {
+            Buddy = value.toFloat(); 
+            lastUpdateBuddy = timeinfo.tm_yday;
+            tag_Buddy_last = millis();  
+            UDBDebug("DEBUG: Buddy erhalten über MQTT "+value);
+            CheckTagUpdate();
+            return true;
+        }
+        if (message == IsMatti) {
+            Matti = value.toFloat(); 
+            tag_Matti_last = millis();  
+            lastUpdateMatti = timeinfo.tm_yday;
+            UDBDebug("DEBUG: Matti erhalten über MQTT "+value);
+            CheckTagUpdate();
+            return true;
+        }
+        break;
+    case sizeof(IsMika):  
+        if (message == IsMika) {
+            Mika = value.toFloat(); 
+            tag_Mika_last = millis();  
+            lastUpdateMika = timeinfo.tm_yday;
+            UDBDebug("DEBUG: Mika erhalten über MQTT "+value);
+            CheckTagUpdate();
+            return true;
+        }        
+    default:
+        break;
+  }
+  return false;
+}
 
-        
-        zeit -= 20000; // 15 sekunden
+void Waage::CheckTagUpdate() {
+        int32_t zeit = millis() - 20000; // 15 sekunden
         if ((tag_Buddy_last != 0) && (tag_Buddy_last > zeit) && (tag_Mika_last > zeit)  && (tag_Matti_last > zeit)) {
             tag_Buddy = Buddy;
             tag_Mika = Mika;
@@ -61,13 +64,8 @@ void Waage::NewScale(wer welchewaage, float fGewicht) {
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Buddy", Buddy); 
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Mika", Mika); 
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Matti", Matti); 
-        }
         UDBDebug(serialize());
-    }
-
-    if (fGewicht>2) {
-        MQTT_Send((char const *) "display/Gewicht", fGewicht);
-    }
+        }
 }
 
 void Waage::run(int32_t zeit) {
@@ -77,7 +75,6 @@ void Waage::run(int32_t zeit) {
     if (lastUpdateMatti<last) { Matti = 0; tag_Matti = 0;}
     if (lastUpdateBuddy<last) { Mika = 0; tag_Mika = 0;}
 }
-
 
 String Waage::serialize() {
     String result="";
@@ -102,8 +99,6 @@ String Waage::serialize() {
     result += tag_Mika_last;
     result += " Matti = ";
     result += tag_Matti_last;  
-    result += " LastUpdate = ";
-    result += lastUpdated;
 
     return result;
 }

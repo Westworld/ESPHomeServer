@@ -8,16 +8,12 @@
 class Wasser: public Sensor
 {
     private:
-        float temp=0;
         long counter=0;
-        long wasserstarted=0, lastwasser=0;
-        int8_t wasseralarm = 0;  
-        int8_t heizungTempAlarm = 0; 
+        long lastwasser=0;
         long counterday=0;
 
     public:
-        void NewReport(long counter, float temp);
-        virtual void Run(int32_t zeit);
+        virtual bool HandleMQTT(String message, short joblength, String value);
         virtual String serialize();
         virtual String WriteHeader();
         virtual String WriteData();   

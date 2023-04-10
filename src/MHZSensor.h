@@ -9,7 +9,7 @@
 class MHZSensor: public Sensor
 {
     private:
-        int16_t Co2, temp, Accuracy;
+        int16_t Co2, temp, Accuracy, lasttemp, tempcounter=0, lastCo2, Co2counter=0;
         MHZ19 * mhz;
 
     public:

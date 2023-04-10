@@ -23,8 +23,30 @@ void MHZSensor::Run(int32_t zeit) {
             Co2 = mhz->getCO2();
             temp = mhz->getTemperature();
             temp -= 6;  // geht falsch...
-            MQTT_Send((char const *) "HomeServer/WZ/Temp", temp);
-            MQTT_Send((char const *) "HomeServer/WZ/Co2", Co2);           
+            //MQTT_Send((char const *) "HomeServer/WZ/Temp", temp);
+            if (lasttemp == temp) {
+             if (tempcounter++ > 60)   {
+                MQTT_Send("hm/set/CUX9002001:1/SET_TEMPERATURE",temp);
+                tempcounter = 0;
+                }
+            }
+            else {
+                MQTT_Send("hm/set/CUX9002001:1/SET_TEMPERATURE",temp);  
+                tempcounter = 0;
+            }
+            lasttemp = temp;  
+
+             if (lastCo2 == Co2) {
+             if (Co2counter++ > 60)   {
+                MQTT_Send((char const *) "HomeServer/WZ/Co2", Co2); 
+                Co2counter = 0;
+                }
+            }
+            else {
+               MQTT_Send((char const *) "HomeServer/WZ/Co2", Co2); 
+               Co2counter = 0;
+            }
+            lastCo2 = Co2;            
         }
         else
         {

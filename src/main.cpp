@@ -15,6 +15,12 @@
 #include "wasser.h"
 #include "garage.h"
 
+/*
+Rolladen 3 - Lets do it - 192.168.0.85
+Dreamer Power - 192.168.0.107
+
+*/
+
 extern void Homematic_Set(String device, int8_t status);
 
 #define UDPDEBUG 1
@@ -173,10 +179,11 @@ void setup() {
    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       //mqttclient.publish("outTopic","hello world");
       UDBDebug("MQTT connect successful"); 
-      //mqttclient.subscribe("garage/TargetDoorState");
       //const char *TOPIC = "Haus/Sonoff POW R1/R2/Dreamer_Power/#";
       const char *TOPIC = "garage/TargetDoorState/#";
       mqttclient.subscribe(TOPIC);
+      const char *TOPIC2 = "HomeServer/#";
+      mqttclient.subscribe(TOPIC2);
       //mqttclient.subscribe("Haus/+/Power");
    }  
     else
@@ -234,7 +241,22 @@ void loop() {
        UDBDebug("MQTT reconnect error");  
   };
 
-  int32_t zeit = millis();
+  static int32_t zeit=0, altzeit=0, gesamtzeit=0;
+  static int32_t zeitcounter=0;
+
+  zeit = millis();
+  /*
+  if (altzeit != 0) {
+    gesamtzeit += (zeit-altzeit);
+  }
+  altzeit = zeit;
+  if (zeitcounter++ > 10000) {
+    zeitcounter = 0;
+    UDBDebug("Loop Zeit: "+String(gesamtzeit));
+    gesamtzeit = 0;
+  }
+  */
+
   for (int16_t i=0; i<sensorcounter;i++) {  
     sensor[i]->Run(zeit);
   }
@@ -272,91 +294,13 @@ void loop() {
 void handleStrom() {
 
   if (server.hasArg("Job"))  {
-    //Serial.println(server.arg("Job"));
     String job = server.arg("Job");
-    if (job.startsWith("Scale")) {
-       if (!server.hasArg("Gewicht")) 
+    int8_t joblength = job.length();
+    
+      for (int16_t i=0; i<sensorcounter;i++) {  
+        if (sensor[i]->HandleWebCall(job, joblength))
           return;
-      String SGewicht = server.arg("Gewicht"); 
-      float Gewicht = SGewicht.toFloat();
-
-        String Katze = job.substring(5);
-        Waage::wer katze = Waage::unbekannt;
-        if (Katze == "Buddy") katze = Waage::warBuddy;
-        if (Katze == "Mika") katze = Waage::warMika;
-        if (Katze == "Matti") katze = Waage::warMatti;
-        if (katze != Waage::unbekannt)
-          waage->NewScale(katze, Gewicht);
-
-
-      server.send(200, "text/html", String("OK waage"));
-      return;
-    }  
-
-    if (job == "Wasser") {
-        long counter = 0;
-        float temp = 127;
-        if (server.hasArg("Counter")) {
-          String SCounter = server.arg("Counter"); 
-          counter = SCounter.toInt();
-        }
-        if (server.hasArg("Temp")) {
-          String STemp = server.arg("Temp"); 
-          temp = STemp.toFloat();
-        }   
-        wasser->NewReport(counter, temp);  
-        server.send(200, "text/html", String("OK wasser"));
-        return;   
-    }
-
-    if (job == "Garage") {
-        long counter = 0;
-        float temp = 127;
-        String Button="";
-        if (server.hasArg("Strom")) {
-          String SCounter = server.arg("Strom"); 
-          counter = SCounter.toInt();
-        }
-        if (server.hasArg("Temp2")) {
-          String STemp = server.arg("Temp2"); 
-          temp = STemp.toFloat();
-        }   
-        if (server.hasArg("Button")) {
-          Button = server.arg("Button"); 
-        } 
-        garage->NewReport(counter, temp, Button);   
-        server.send(200, "text/html", String("OK Garage"));  
-        return;
-    }
-
-   if (job == "Licht") {
-     UDBDebug("Licht" );
-        String was="";
-        int welchesLicht=0;
-        if (server.hasArg("Was")) {
-          was = server.arg("Was"); 
-          welchesLicht = was.toInt();
-          UDBDebug("Licht Was: "+was+" - "+String(welchesLicht));
-          switch (welchesLicht) {
-            case 1:
-              Homematic_Set("Dach", 2);
-              break;
-            case 2:
-              Homematic_Set("Bad", 2);
-              break;
-            case 3:
-              //Homematic_Set("Dach", 2);
-              break;
-            case 4:
-              Homematic_Set("Lichtwarner_SZ", 0);
-              break;
-            default:
-              ;  // nothing  
-          }
-        }        
-        server.send(200, "text/html", String("OK Licht"));  
-        return;
-    }
+      }
 
    if (job == "sendtemp") {
         String name="";
@@ -371,12 +315,6 @@ void handleStrom() {
         String SName2 = "";
         if (server.hasArg("name")) {
           name2 = server.arg("name"); 
-        }
-        if ((name == "Heizung") && (STemp != "127")) {
-          MQTT_Send("HomeServer/Heizung/Temp",STemp);
-          // Send MQTT ohne lokale Speicherung    
-          server.send(200, "text/html", String("OK temp"));  
-          return;
         }
         if ((name2 == "temp2_wz") && (name == "Temperature") && (STemp != "127")) {
           MQTT_Send("HomeServer/WZ2/Temp",STemp);  
@@ -696,18 +634,17 @@ void MQTT_Send(char const * topic, long value) {
 
   // Callback function
 void MQTT_callback(char* topic, byte* payload, unsigned int length) {
-  String message = String(topic);
-  payload[length] = '\0';
-  String value = String((char *) payload);
-  UDBDebug(message +" - "+value);
-  if (strcmp(topic,"garage/TargetDoorState/BMW")==0){
-    UDBDebug("open BMW");
-    return;
-  }
-  if (strcmp(topic,"garage/TargetDoorState/Mini")==0){
-    UDBDebug("open Mini");
-    return;
-  }
+
+    String message = String(topic);
+    int8_t joblength = message.length();
+    payload[length] = '\0';
+    String value = String((char *) payload);
+    //UDBDebug(message +" - "+value);
+    
+    for (int16_t i=0; i<sensorcounter;i++) {  
+        if (sensor[i]->HandleMQTT(message, joblength, value))
+          return;
+      }
 }
 
 // EMAIL
