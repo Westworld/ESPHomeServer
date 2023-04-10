@@ -76,7 +76,7 @@ void Garage::NewReport(long newcounter, float newtemp, String Button) {
 
 
     if (newtemp != 127) {
-        temp = newtemp;
+        temp = round(newtemp);
             if (lasttemp == temp) {
              if (tempcounter++ > 60)   {
                 //MQTT_Send((char const *) "HomeServer/Garage/Temp", temp);

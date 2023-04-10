@@ -1,0 +1,4044 @@
+[
+    {
+        "id": "cdb7abff.3cf718",
+        "type": "tab",
+        "label": "MQTT abgleich",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "1c0658ed.a52207",
+        "type": "tab",
+        "label": "Dashboard",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d2aa9e3f.51894",
+        "type": "tab",
+        "label": "UNREACH Meldungen",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d93ee77.7acbf18",
+        "type": "tab",
+        "label": "UNREACH unterdrücken",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "a23821ff.94d9a",
+        "type": "tab",
+        "label": "Rolladen",
+        "disabled": false,
+        "info": "# Rolladensteuerung\n"
+    },
+    {
+        "id": "7072a41db2ccafb4",
+        "type": "tab",
+        "label": "Lichtwarnung SZ",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8153eb0.fe96118",
+        "type": "ui_tab",
+        "name": "Funk",
+        "icon": "dashboard",
+        "order": 4,
+        "disabled": true,
+        "hidden": true
+    },
+    {
+        "id": "dd8cb1a4.10e1b",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "true",
+            "allowSwipe": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            },
+            "lockMenu": "icon"
+        }
+    },
+    {
+        "id": "38263145.35ea0e",
+        "type": "ccu-connection",
+        "name": "localhost",
+        "host": "localhost",
+        "regaEnabled": true,
+        "bcrfEnabled": true,
+        "iprfEnabled": true,
+        "virtEnabled": true,
+        "bcwiEnabled": false,
+        "cuxdEnabled": true,
+        "regaPoll": true,
+        "regaInterval": "30",
+        "rpcPingTimeout": "60",
+        "rpcInitAddress": "127.0.0.1",
+        "rpcServerHost": "127.0.0.1",
+        "rpcBinPort": "2047",
+        "rpcXmlPort": "2048",
+        "tls": false,
+        "inSecure": false,
+        "authentication": false,
+        "username": "",
+        "password": "",
+        "queueTimeout": "5000",
+        "queuePause": "250",
+        "contextStore": ""
+    },
+    {
+        "id": "36fb2145.947dee",
+        "type": "ui_tab",
+        "name": "Variablen",
+        "icon": "dashboard",
+        "order": 3,
+        "disabled": true,
+        "hidden": true
+    },
+    {
+        "id": "eaba5e04.aea4a8",
+        "type": "position-config",
+        "name": "hier",
+        "isValide": "true",
+        "longitude": "0",
+        "latitude": "0",
+        "angleType": "deg",
+        "timeZoneOffset": "99",
+        "timeZoneDST": "0",
+        "stateTimeFormat": "3",
+        "stateDateFormat": "12"
+    },
+    {
+        "id": "30dc1b26acfe2711",
+        "type": "mqtt-broker",
+        "name": "MQTTserver",
+        "broker": "192.168.0.46",
+        "port": "1883",
+        "clientid": "RodeNed",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "95495ef38e1ab9cd",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "825c8f123c3169a2",
+        "type": "ui_group",
+        "name": "Tiere",
+        "tab": "95495ef38e1ab9cd",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "156fb254417869d4",
+        "type": "ccu-set-value",
+        "z": "cdb7abff.3cf718",
+        "name": "temp",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "CUX9002003",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "CUX9002003:1",
+        "channelRx": "str",
+        "channelName": "Temp Wohnzimmer2",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "SET_TEMPERATURE",
+        "datapointRx": "str",
+        "force": false,
+        "x": 350,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e7d14a3d5a36e346",
+        "type": "ccu-mqtt",
+        "z": "cdb7abff.3cf718",
+        "name": "mqtt master",
+        "ccuConfig": "38263145.35ea0e",
+        "cache": false,
+        "topicOutputEvent": "hm/status/${channelName}/${datapoint}",
+        "topicInputSetValue": "hm/set/${channelNameOrAddress}/${datapoint}",
+        "topicOutputSysvar": "hm/status/${name}",
+        "topicInputSysvar": "hm/set/${name}",
+        "topicInputPutParam": "hm/paramset/${channelNameOrAddress}/${paramset}/${param}",
+        "topicInputPutParamset": "hm/paramset/${channelNameOrAddress}/${paramset}",
+        "topicInputRpc": "hm/rpc/${iface}/${method}/${command}/${callid}",
+        "topicOutputRpc": "hm/response/${callid}",
+        "topicCounters": "hm/status/counter/${iface}/${rxtx}",
+        "payloadOutput": "plain",
+        "x": 390,
+        "y": 340,
+        "wires": [
+            [
+                "d34590b842fb2c1f"
+            ]
+        ]
+    },
+    {
+        "id": "d34590b842fb2c1f",
+        "type": "mqtt out",
+        "z": "cdb7abff.3cf718",
+        "name": "sendtoserver",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "30dc1b26acfe2711",
+        "x": 570,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "0d1c2fde3d9edf94",
+        "type": "mqtt in",
+        "z": "cdb7abff.3cf718",
+        "name": "",
+        "topic": "hm/set/#",
+        "qos": "2",
+        "datatype": "utf8",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "e7d14a3d5a36e346",
+                "66e08234f30fe6b5"
+            ]
+        ]
+    },
+    {
+        "id": "9cc606ba065892e7",
+        "type": "mqtt in",
+        "z": "cdb7abff.3cf718",
+        "name": "",
+        "topic": "hm/paramset/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "e7d14a3d5a36e346"
+            ]
+        ]
+    },
+    {
+        "id": "66e08234f30fe6b5",
+        "type": "debug",
+        "z": "cdb7abff.3cf718",
+        "name": "mqtt",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 330,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "02d0eada616af4b8",
+        "type": "mqtt in",
+        "z": "cdb7abff.3cf718",
+        "name": "Rolladen3_Temp",
+        "topic": "Haus/Rolladen3/Temperature",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 60,
+        "wires": [
+            [
+                "156fb254417869d4"
+            ]
+        ]
+    },
+    {
+        "id": "b3eb0866a90feafa",
+        "type": "mqtt in",
+        "z": "cdb7abff.3cf718",
+        "name": "Rolladen3_Humidity",
+        "topic": "Haus/Rolladen3/Humidity",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "2e6335b4012c7f66"
+            ]
+        ]
+    },
+    {
+        "id": "2e6335b4012c7f66",
+        "type": "ccu-set-value",
+        "z": "cdb7abff.3cf718",
+        "name": "hum",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "CUX9002003",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "CUX9002003:1",
+        "channelRx": "str",
+        "channelName": "Temp Wohnzimmer2",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "SET_HUMIDITY",
+        "datapointRx": "str",
+        "force": false,
+        "x": 350,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "af0dae6b874024f3",
+        "type": "mqtt in",
+        "z": "1c0658ed.a52207",
+        "name": "Tiere",
+        "topic": "HomeServer/Tiere/+",
+        "qos": "2",
+        "datatype": "utf8",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 70,
+        "y": 180,
+        "wires": [
+            [
+                "08c040bbaaccedfa"
+            ]
+        ]
+    },
+    {
+        "id": "efb77c3e36481d3a",
+        "type": "ui_chart",
+        "z": "1c0658ed.a52207",
+        "name": "",
+        "group": "825c8f123c3169a2",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "label": "Tiere",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "dd HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "5",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "x": 690,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ac6939ec40d8af3b",
+        "type": "switch",
+        "z": "1c0658ed.a52207",
+        "name": "Tiere",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Buddy",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Matti",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Mika",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Timmi",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 450,
+        "y": 160,
+        "wires": [
+            [
+                "8fbda7da308110f8"
+            ],
+            [
+                "b2cbe14264478c3c"
+            ],
+            [
+                "f121899b3bcd0868"
+            ],
+            [
+                "23ba7210cf4a0655"
+            ]
+        ]
+    },
+    {
+        "id": "8fbda7da308110f8",
+        "type": "ui_text",
+        "z": "1c0658ed.a52207",
+        "group": "825c8f123c3169a2",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "name": "",
+        "label": "Buddy",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "b2cbe14264478c3c",
+        "type": "ui_text",
+        "z": "1c0658ed.a52207",
+        "group": "825c8f123c3169a2",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "",
+        "label": "Matti",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "x": 690,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "f121899b3bcd0868",
+        "type": "ui_text",
+        "z": "1c0658ed.a52207",
+        "group": "825c8f123c3169a2",
+        "order": 3,
+        "width": "1",
+        "height": "1",
+        "name": "",
+        "label": "Mika",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "x": 690,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "23ba7210cf4a0655",
+        "type": "ui_text",
+        "z": "1c0658ed.a52207",
+        "group": "825c8f123c3169a2",
+        "order": 4,
+        "width": "1",
+        "height": "1",
+        "name": "",
+        "label": "Timmi",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "x": 690,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "55ad1c7d90b8c60b",
+        "type": "switch",
+        "z": "1c0658ed.a52207",
+        "name": "Chart",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Tag_Buddy",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Tag_Matti",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Tag_Mika",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HomeServer/Tiere/Timmi",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 4,
+        "x": 450,
+        "y": 300,
+        "wires": [
+            [
+                "efb77c3e36481d3a"
+            ],
+            [
+                "efb77c3e36481d3a"
+            ],
+            [
+                "efb77c3e36481d3a"
+            ],
+            [
+                "efb77c3e36481d3a"
+            ]
+        ]
+    },
+    {
+        "id": "08c040bbaaccedfa",
+        "type": "function",
+        "z": "1c0658ed.a52207",
+        "name": "runden",
+        "func": "msg.payload = Math.round(msg.payload * 10) / 10;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 180,
+        "wires": [
+            [
+                "ac6939ec40d8af3b",
+                "55ad1c7d90b8c60b"
+            ]
+        ]
+    },
+    {
+        "id": "8c06cf4ed5167549",
+        "type": "mqtt in",
+        "z": "1c0658ed.a52207",
+        "name": "Wasser",
+        "topic": "HomeServer/Heizung/WasserDay",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "30dc1b26acfe2711",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 400,
+        "wires": [
+            [
+                "f705d4b5a8ae7987"
+            ]
+        ]
+    },
+    {
+        "id": "f705d4b5a8ae7987",
+        "type": "ui_chart",
+        "z": "1c0658ed.a52207",
+        "name": "",
+        "group": "825c8f123c3169a2",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "label": "Wasser",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "x": 700,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "53c6bf49.7e356",
+        "type": "ccu-rpc-event",
+        "z": "d93ee77.7acbf18",
+        "name": "RPC event UNREACH",
+        "iface": "BidCos-RF",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "datapoint": "UNREACH",
+        "datapointRx": "str",
+        "change": true,
+        "cache": true,
+        "topic": "${CCU}/${Interface}/${channelName}/${datapoint}",
+        "x": 140,
+        "y": 180,
+        "wires": [
+            [
+                "de60fd20.e5bc9"
+            ]
+        ]
+    },
+    {
+        "id": "de60fd20.e5bc9",
+        "type": "function",
+        "z": "d93ee77.7acbf18",
+        "name": "Event mit UNREACH false erzeugen",
+        "func": "const channels = [\n    'JPCAPM0033:0',\n    'Gartensensor:0'\n];\n\nif (msg.payload && channels.includes(msg.channelName)) {\n    msg.payload = ['nr', msg.channel, 'UNREACH', false];\n    return msg;    \n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 240,
+        "wires": [
+            [
+                "1625b35a.ee815d"
+            ]
+        ]
+    },
+    {
+        "id": "1625b35a.ee815d",
+        "type": "ccu-rpc",
+        "z": "d93ee77.7acbf18",
+        "name": "ReGaHSS RPC",
+        "ccuConfig": "38263145.35ea0e",
+        "iface": "ReGaHSS",
+        "method": "event",
+        "params": "",
+        "topic": "${CCU}/${Interface}/${Method}",
+        "x": 460,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6b8ec179.3a798",
+        "type": "comment",
+        "z": "d93ee77.7acbf18",
+        "name": "UNREACH Servicemeldungen für bestimmte Geräte unterdrücken",
+        "info": "",
+        "x": 300,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "76958c0c.401aec",
+        "type": "blind-control",
+        "z": "a23821ff.94d9a",
+        "name": "Rolladen_A",
+        "topic": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "outputs": 2,
+        "autoTrigger": true,
+        "autoTriggerTime": "600000",
+        "startDelayTime": 10000,
+        "storeName": "",
+        "blindIncrement": "10",
+        "blindOpenPos": "100",
+        "blindClosedPos": 0,
+        "blindPosReverse": false,
+        "blindPosDefault": "open (max)",
+        "blindPosDefaultType": "levelFixed",
+        "overwriteExpire": "",
+        "rules": [
+            {
+                "index": 0,
+                "name": "Auf Wochentags",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "1,2,3,4",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "06:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>06:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:00</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Mo-Do</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 1,
+                "name": "Auf Wochenende",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "5,6,0",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "07:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:30",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>07:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:30</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Fr-So</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 2,
+                "name": "Zu",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunsetStart",
+                "timeType": "pdsTime",
+                "timeOp": 1,
+                "timeOpText": "↧ von",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "*",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "",
+                "timeMinType": "none",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "20:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "closed (min)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↧ von <var>Sonnenuntergang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>20:00</var></div></div><div>↕  Absolut <var>geschlossen (min)</var></div>"
+            }
+        ],
+        "sunControlMode": "0",
+        "sunFloorLength": "",
+        "sunMinAltitude": "",
+        "sunMinDelta": "",
+        "blindPosMin": "open (max)",
+        "blindPosMinType": "levelFixed",
+        "blindPosMax": "open (max)",
+        "blindPosMaxType": "levelFixed",
+        "smoothTime": "",
+        "sunTopic": "",
+        "windowTop": "",
+        "windowBottom": "",
+        "windowAzimuthStart": "",
+        "windowAzimuthEnd": "",
+        "oversteerValue": "",
+        "oversteerValueType": "none",
+        "oversteerCompare": "gte",
+        "oversteerThreshold": "",
+        "oversteerThresholdType": "num",
+        "oversteerBlindPos": "open (max)",
+        "oversteerBlindPosType": "levelFixed",
+        "oversteer2Value": "",
+        "oversteer2ValueType": "none",
+        "oversteer2Compare": "gte",
+        "oversteer2Threshold": "",
+        "oversteer2ThresholdType": "num",
+        "oversteer2BlindPos": "open (max)",
+        "oversteer2BlindPosType": "levelFixed",
+        "oversteer3Value": "",
+        "oversteer3ValueType": "none",
+        "oversteer3Compare": "gte",
+        "oversteer3Threshold": "",
+        "oversteer3ThresholdType": "num",
+        "oversteer3BlindPos": "open (max)",
+        "oversteer3BlindPosType": "levelFixed",
+        "oversteerTopic": "",
+        "x": 195,
+        "y": 60,
+        "wires": [
+            [
+                "c13c4162.9b59c8"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "1",
+            "2"
+        ],
+        "l": false
+    },
+    {
+        "id": "5721d36.6dbbd2c",
+        "type": "inject",
+        "z": "a23821ff.94d9a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 100,
+        "y": 80,
+        "wires": [
+            [
+                "76958c0c.401aec"
+            ]
+        ]
+    },
+    {
+        "id": "1c0f333b.72c02d",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "morgens",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "05:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "08:00",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 40,
+        "wires": [
+            [
+                "d58b3278.dd3ba8",
+                "950ba4dd.7d964"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "c13c4162.9b59c8",
+        "type": "switch",
+        "z": "a23821ff.94d9a",
+        "name": "A_auf_oder_zu",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "100",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "1c0f333b.72c02d"
+            ],
+            [
+                "7082a76d.e5a68"
+            ]
+        ]
+    },
+    {
+        "id": "7082a76d.e5a68",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "abends",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "16:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "22:30",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 100,
+        "wires": [
+            [
+                "b1dead6d.5f3078",
+                "b723b590.49c6f8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a65580b0.17e578",
+        "type": "blind-control",
+        "z": "a23821ff.94d9a",
+        "name": "Rolladen_B",
+        "topic": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "outputs": 2,
+        "autoTrigger": true,
+        "autoTriggerTime": "600000",
+        "startDelayTime": 10000,
+        "storeName": "",
+        "blindIncrement": "10",
+        "blindOpenPos": "100",
+        "blindClosedPos": 0,
+        "blindPosReverse": false,
+        "blindPosDefault": "open (max)",
+        "blindPosDefaultType": "levelFixed",
+        "overwriteExpire": "",
+        "rules": [
+            {
+                "index": 0,
+                "name": "Auf Wochentags",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "1,2,3,4",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "06:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>06:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:00</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Mo-Do</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 1,
+                "name": "Auf Wochenende",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "5,6,0",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "07:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:30",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>07:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:30</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Fr-So</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 2,
+                "name": "Zu",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunsetStart",
+                "timeType": "pdsTime",
+                "timeOp": 1,
+                "timeOpText": "↧ von",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "*",
+                "timeMonths": "*",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "",
+                "timeMinType": "none",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "20:30",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "closed (min)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↧ von <var>Sonnenuntergang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>20:30</var></div></div><div>↕  Absolut <var>geschlossen (min)</var></div>"
+            }
+        ],
+        "sunControlMode": "0",
+        "sunFloorLength": "",
+        "sunMinAltitude": "",
+        "sunMinDelta": "",
+        "blindPosMin": "open (max)",
+        "blindPosMinType": "levelFixed",
+        "blindPosMax": "open (max)",
+        "blindPosMaxType": "levelFixed",
+        "smoothTime": "",
+        "sunTopic": "",
+        "windowTop": "",
+        "windowBottom": "",
+        "windowAzimuthStart": "",
+        "windowAzimuthEnd": "",
+        "oversteerValue": "",
+        "oversteerValueType": "none",
+        "oversteerCompare": "gte",
+        "oversteerThreshold": "",
+        "oversteerThresholdType": "num",
+        "oversteerBlindPos": "open (max)",
+        "oversteerBlindPosType": "levelFixed",
+        "oversteer2Value": "",
+        "oversteer2ValueType": "none",
+        "oversteer2Compare": "gte",
+        "oversteer2Threshold": "",
+        "oversteer2ThresholdType": "num",
+        "oversteer2BlindPos": "open (max)",
+        "oversteer2BlindPosType": "levelFixed",
+        "oversteer3Value": "",
+        "oversteer3ValueType": "none",
+        "oversteer3Compare": "gte",
+        "oversteer3Threshold": "",
+        "oversteer3ThresholdType": "num",
+        "oversteer3BlindPos": "open (max)",
+        "oversteer3BlindPosType": "levelFixed",
+        "oversteerTopic": "",
+        "x": 175,
+        "y": 300,
+        "wires": [
+            [
+                "fe930a7.db2baf8"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "1",
+            "2"
+        ],
+        "l": false
+    },
+    {
+        "id": "22ace940.c24116",
+        "type": "inject",
+        "z": "a23821ff.94d9a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 80,
+        "y": 260,
+        "wires": [
+            [
+                "a65580b0.17e578"
+            ]
+        ]
+    },
+    {
+        "id": "b57c8211.6a8718",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "morgens",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "05:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "08:00",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 260,
+        "wires": [
+            [
+                "34b4d3b0.83be44",
+                "2639fd39.051c62"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "fe930a7.db2baf8",
+        "type": "switch",
+        "z": "a23821ff.94d9a",
+        "name": "B_auf_oder_zu",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "100",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 360,
+        "y": 300,
+        "wires": [
+            [
+                "b57c8211.6a8718"
+            ],
+            [
+                "5b9539ef.b149c"
+            ]
+        ]
+    },
+    {
+        "id": "5b9539ef.b149c",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "abends",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "16:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "22:30",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 320,
+        "wires": [
+            [
+                "161a1fdd.a3a27",
+                "eae97b62.9cdb58"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4dd99d22.7221e4",
+        "type": "blind-control",
+        "z": "a23821ff.94d9a",
+        "name": "Rolladen_C",
+        "topic": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "outputs": 2,
+        "autoTrigger": true,
+        "autoTriggerTime": "600000",
+        "startDelayTime": 10000,
+        "storeName": "",
+        "blindIncrement": "10",
+        "blindOpenPos": "100",
+        "blindClosedPos": 0,
+        "blindPosReverse": false,
+        "blindPosDefault": "open (max)",
+        "blindPosDefaultType": "levelFixed",
+        "overwriteExpire": "",
+        "rules": [
+            {
+                "index": 0,
+                "name": "Auf Wochentags",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "1,2,3,4",
+                "timeMonths": "1,2,3,4,5,6,7,8",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "06:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>06:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:00</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Mo-Do</var></div><div class=\"indent-time-months\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Monaten</span> <var>Feb-Sept</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 1,
+                "name": "Auf Wochenende",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "5,6,0",
+                "timeMonths": "1,2,3,4,5,6,7,8",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "07:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "07:30",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>07:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>07:30</var></div><div class=\"indent-time-days\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Wochentagen</span> <var>Fr-So</var></div><div class=\"indent-time-months\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Monaten</span> <var>Feb-Sept</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 2,
+                "name": "Auf Winter",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunriseStart",
+                "timeType": "pdsTime",
+                "timeOp": 0,
+                "timeOpText": "↥ bis",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "*",
+                "timeMonths": "0,9,10,11",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "08:00",
+                "timeMinType": "entered",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "08:30",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "open (max)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↥ bis <var>Sonnenaufgang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-backward\" aria-hidden=\"true\"></i> <span>frühestens (min)</span> <var>08:00</var></div><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>08:30</var></div><div class=\"indent-time-months\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Monaten</span> <var>Jan,Okt,Nov,Dez</var></div></div><div>↕  Absolut <var>offen (max)</var></div>"
+            },
+            {
+                "index": 3,
+                "name": "Zu",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunsetStart",
+                "timeType": "pdsTime",
+                "timeOp": 1,
+                "timeOpText": "↧ von",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "*",
+                "timeMonths": "1,2,3,4,5,6,7,8",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "",
+                "timeMinType": "none",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "20:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "closed (min)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↧ von <var>Sonnenuntergang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>20:00</var></div><div class=\"indent-time-months\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Monaten</span> <var>Feb-Sept</var></div></div><div>↕  Absolut <var>geschlossen (min)</var></div>"
+            },
+            {
+                "index": 4,
+                "name": "Zu - Winter",
+                "isValid": false,
+                "valid": {},
+                "timeValue": "sunsetStart",
+                "timeType": "pdsTime",
+                "timeOp": 1,
+                "timeOpText": "↧ von",
+                "offsetValue": "",
+                "offsetType": "none",
+                "multiplier": 60000,
+                "timeDays": "*",
+                "timeMonths": "0,9,10,11",
+                "timeOnlyEvenDays": false,
+                "timeOnlyOddDays": false,
+                "timeDateStart": "",
+                "timeDateEnd": "",
+                "timeMinValue": "",
+                "timeMinType": "none",
+                "offsetMinValue": "",
+                "offsetMinType": "none",
+                "multiplierMin": 60000,
+                "timeMaxValue": "16:00",
+                "timeMaxType": "entered",
+                "offsetMaxValue": "",
+                "offsetMaxType": "none",
+                "multiplierMax": 60000,
+                "levelValue": "closed (min)",
+                "levelType": "levelFixed",
+                "levelOp": 0,
+                "levelOpText": "↕  Absolut",
+                "topic": "",
+                "importance": 0,
+                "resetOverwrite": false,
+                "validOperandAValue": "",
+                "validOperandAType": "none",
+                "validOperator": "true",
+                "validOperatorText": "ist true",
+                "validOperandBValue": "",
+                "validOperandBType": "num",
+                "valid2LogOperator": 0,
+                "valid2LogOperatorText": "N/A",
+                "valid2OperandAValue": "",
+                "valid2OperandAType": "msg",
+                "valid2Operator": "true",
+                "valid2OperatorText": "ist true",
+                "valid2OperandBValue": "",
+                "valid2OperandBType": "num",
+                "description": "<div><i class=\"fa fa-clock-o\" aria-hidden=\"true\"></i> ↧ von <var>Sonnenuntergang Begin</var><div class=\"indent-time-text\"><i class=\"fa fa-step-forward\" aria-hidden=\"true\"></i> <span>spätestens (max)</span> <var>16:00</var></div><div class=\"indent-time-months\"><i class=\"fa fa-calendar-o\" aria-hidden=\"true\"></i> <span>nur an bestimmten Monaten</span> <var>Jan,Okt,Nov,Dez</var></div></div><div>↕  Absolut <var>geschlossen (min)</var></div>"
+            }
+        ],
+        "sunControlMode": "0",
+        "sunFloorLength": "",
+        "sunMinAltitude": "",
+        "sunMinDelta": "",
+        "blindPosMin": "open (max)",
+        "blindPosMinType": "levelFixed",
+        "blindPosMax": "open (max)",
+        "blindPosMaxType": "levelFixed",
+        "smoothTime": "",
+        "sunTopic": "",
+        "windowTop": "",
+        "windowBottom": "",
+        "windowAzimuthStart": "",
+        "windowAzimuthEnd": "",
+        "oversteerValue": "",
+        "oversteerValueType": "none",
+        "oversteerCompare": "gte",
+        "oversteerThreshold": "",
+        "oversteerThresholdType": "num",
+        "oversteerBlindPos": "open (max)",
+        "oversteerBlindPosType": "levelFixed",
+        "oversteer2Value": "",
+        "oversteer2ValueType": "none",
+        "oversteer2Compare": "gte",
+        "oversteer2Threshold": "",
+        "oversteer2ThresholdType": "num",
+        "oversteer2BlindPos": "open (max)",
+        "oversteer2BlindPosType": "levelFixed",
+        "oversteer3Value": "",
+        "oversteer3ValueType": "none",
+        "oversteer3Compare": "gte",
+        "oversteer3Threshold": "",
+        "oversteer3ThresholdType": "num",
+        "oversteer3BlindPos": "open (max)",
+        "oversteer3BlindPosType": "levelFixed",
+        "oversteerTopic": "",
+        "x": 195,
+        "y": 480,
+        "wires": [
+            [
+                "bdd472d6.a23548"
+            ],
+            []
+        ],
+        "outputLabels": [
+            "1",
+            "2"
+        ],
+        "l": false
+    },
+    {
+        "id": "c0831378.f13c",
+        "type": "inject",
+        "z": "a23821ff.94d9a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 90,
+        "y": 460,
+        "wires": [
+            [
+                "4dd99d22.7221e4"
+            ]
+        ]
+    },
+    {
+        "id": "bdd472d6.a23548",
+        "type": "switch",
+        "z": "a23821ff.94d9a",
+        "name": "C_auf_oder_zu",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "100",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 360,
+        "y": 460,
+        "wires": [
+            [
+                "5583bd2.a111f44"
+            ],
+            [
+                "79905863.4fa64"
+            ]
+        ]
+    },
+    {
+        "id": "79905863.4fa64",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "abends",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "15:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "22:30",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 480,
+        "wires": [
+            [
+                "195c19a.32b4be6"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "b1dead6d.5f3078",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "zugeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen1",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "PRESS_LONG",
+        "datapointRx": "str",
+        "force": false,
+        "x": 890,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d58b3278.dd3ba8",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "aufgeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen1",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "LEVEL",
+        "datapointRx": "str",
+        "force": false,
+        "x": 900,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "950ba4dd.7d964",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "aufgeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen2",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "LEVEL",
+        "datapointRx": "str",
+        "force": false,
+        "x": 900,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b723b590.49c6f8",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "zugeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen2",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "PRESS_LONG",
+        "datapointRx": "str",
+        "force": false,
+        "x": 890,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "34b4d3b0.83be44",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "aufgeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen3",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "LEVEL",
+        "datapointRx": "str",
+        "force": false,
+        "x": 960,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "2639fd39.051c62",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "aufgeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen4",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "LEVEL",
+        "datapointRx": "str",
+        "force": false,
+        "x": 960,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "161a1fdd.a3a27",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "zugeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen3",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "PRESS_LONG",
+        "datapointRx": "str",
+        "force": false,
+        "x": 950,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "eae97b62.9cdb58",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "zugeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen4",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "PRESS_LONG",
+        "datapointRx": "str",
+        "force": false,
+        "x": 950,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "a87aa24b.ad22a",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "aufgeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen5",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "LEVEL",
+        "datapointRx": "str",
+        "force": false,
+        "x": 780,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "195c19a.32b4be6",
+        "type": "ccu-set-value",
+        "z": "a23821ff.94d9a",
+        "name": "zugeht",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Rolladen",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Rolladen5",
+        "channelNameRx": "str",
+        "channelType": "BLIND",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "PRESS_LONG",
+        "datapointRx": "str",
+        "force": false,
+        "x": 770,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "5583bd2.a111f44",
+        "type": "within-time-switch",
+        "z": "a23821ff.94d9a",
+        "name": "morgens",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "05:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "09:00",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "entered",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "entered",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 560,
+        "y": 420,
+        "wires": [
+            [
+                "a87aa24b.ad22a"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "ff8599f63aea5a29",
+        "type": "within-time-switch",
+        "z": "7072a41db2ccafb4",
+        "name": "tags",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "05:00",
+        "startTimeType": "entered",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "21:30",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "none",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "none",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 310,
+        "y": 220,
+        "wires": [
+            [
+                "321b69e6dd964886"
+            ],
+            [
+                "7c93d98880829dbc"
+            ]
+        ]
+    },
+    {
+        "id": "8a2433ac187874a0",
+        "type": "inject",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "5",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 220,
+        "wires": [
+            [
+                "ff8599f63aea5a29"
+            ]
+        ]
+    },
+    {
+        "id": "92f8bc043fb31975",
+        "type": "mqtt out",
+        "z": "7072a41db2ccafb4",
+        "d": true,
+        "name": "MQTT Homematic",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "30dc1b26acfe2711",
+        "x": 890,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "38e4f870f255cc54",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "modName",
+        "rules": [
+            {
+                "t": "change",
+                "p": "topic",
+                "pt": "msg",
+                "from": "localhost/BidCos-RF/",
+                "fromt": "str",
+                "to": "",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "topic",
+                "pt": "msg",
+                "from": "/STATE",
+                "fromt": "str",
+                "to": "",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "toic",
+                "pt": "msg",
+                "from": "OEQ1197225:1",
+                "fromt": "str",
+                "to": "Fenster Bad",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "true",
+                "fromt": "bool",
+                "to": "An",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "false",
+                "fromt": "bool",
+                "to": "Aus",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "1",
+                "fromt": "num",
+                "to": "An",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "0",
+                "fromt": "num",
+                "to": "Aus",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "topic",
+                "pt": "msg",
+                "from": "localhost/HmIP-RF/",
+                "fromt": "str",
+                "to": "",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "topic",
+                "pt": "msg",
+                "from": "localhost/CUxD/",
+                "fromt": "str",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 1440,
+        "wires": [
+            [
+                "70d4b46dd2a439ad"
+            ]
+        ]
+    },
+    {
+        "id": "f81992d15cf22528",
+        "type": "ccu-rpc-event",
+        "z": "7072a41db2ccafb4",
+        "d": true,
+        "name": "State",
+        "iface": "",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "STATE",
+        "datapointRx": "str",
+        "change": false,
+        "working": false,
+        "cache": false,
+        "topic": "${CCU}/${Interface}/${channelName}/${datapoint}",
+        "x": 110,
+        "y": 1440,
+        "wires": [
+            [
+                "38e4f870f255cc54"
+            ]
+        ]
+    },
+    {
+        "id": "70d4b46dd2a439ad",
+        "type": "switch",
+        "z": "7072a41db2ccafb4",
+        "name": "filter :",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": ":",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 1440,
+        "wires": [
+            [],
+            [
+                "a02ceafa15e4b099"
+            ]
+        ]
+    },
+    {
+        "id": "a02ceafa15e4b099",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "setze MQTT Topic",
+        "func": "msg.topic = \"HomeServer/Homematic/\"+msg.topic;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 1460,
+        "wires": [
+            [
+                "92f8bc043fb31975"
+            ]
+        ]
+    },
+    {
+        "id": "03d59d8abf51d785",
+        "type": "ccu-set-value",
+        "z": "7072a41db2ccafb4",
+        "name": "aus",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Lichtwarner_SZ",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "SET_STATE",
+        "datapointRx": "str",
+        "force": true,
+        "x": 670,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "52d39b86e8aa0a71",
+        "type": "ccu-set-value",
+        "z": "7072a41db2ccafb4",
+        "name": "ein",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Lichtwarner_SZ",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "SET_STATE",
+        "datapointRx": "str",
+        "force": true,
+        "x": 670,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "321b69e6dd964886",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "0",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 180,
+        "wires": [
+            [
+                "03d59d8abf51d785"
+            ]
+        ]
+    },
+    {
+        "id": "7c93d98880829dbc",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 260,
+        "wires": [
+            [
+                "52d39b86e8aa0a71"
+            ]
+        ]
+    },
+    {
+        "id": "8cfdf46d23d83612",
+        "type": "ccu-sysvar",
+        "z": "7072a41db2ccafb4",
+        "name": "LichtAn",
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "ReGaHSS/LichtAn",
+        "change": true,
+        "cache": true,
+        "x": 100,
+        "y": 400,
+        "wires": [
+            [
+                "f6b58c683a72a0af"
+            ]
+        ]
+    },
+    {
+        "id": "5f28b2c6ac528510",
+        "type": "ccu-sysvar",
+        "z": "7072a41db2ccafb4",
+        "name": "FensterOffen",
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "ReGaHSS/FensterOffen",
+        "change": true,
+        "cache": true,
+        "x": 110,
+        "y": 440,
+        "wires": [
+            [
+                "caa73033e101b3ea"
+            ]
+        ]
+    },
+    {
+        "id": "d8fb72071f8bd7d9",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "iface": "CUxD",
+        "channel": "CUX2801002:4 Lichtwarner_SZ",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 120,
+        "y": 480,
+        "wires": [
+            [
+                "890fb5981c2a8fc9"
+            ]
+        ]
+    },
+    {
+        "id": "f6b58c683a72a0af",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "Licht",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 280,
+        "y": 400,
+        "wires": [
+            [
+                "496fb312b5a6ceb5"
+            ]
+        ]
+    },
+    {
+        "id": "caa73033e101b3ea",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "Fenster",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 440,
+        "wires": [
+            [
+                "496fb312b5a6ceb5"
+            ]
+        ]
+    },
+    {
+        "id": "890fb5981c2a8fc9",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "Lichtwarner",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 480,
+        "wires": [
+            [
+                "496fb312b5a6ceb5"
+            ]
+        ]
+    },
+    {
+        "id": "496fb312b5a6ceb5",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "merge flows",
+        "func": "var licht = flow.get(\"Licht\");\nvar fenster = flow.get(\"Fenster\");\nvar lichtwarner = flow.get(\"Lichtwarner\");\nvar stats = 0;\nif (lichtwarner) {\n    if (licht)\n        stats += 2;\n\n    if (fenster)\n        stats += 1;\n}\nmsg.payload = stats\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 440,
+        "wires": [
+            [
+                "fc75df8322366027"
+            ]
+        ]
+    },
+    {
+        "id": "fc75df8322366027",
+        "type": "mqtt out",
+        "z": "7072a41db2ccafb4",
+        "name": "lichtwarnermqtt",
+        "topic": "display/leds",
+        "qos": "1",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "30dc1b26acfe2711",
+        "x": 800,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "55f2e4221cda7d3f",
+        "type": "inject",
+        "z": "7072a41db2ccafb4",
+        "name": "alle 10 min",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 660,
+        "wires": [
+            [
+                "6df0f3855cd48697"
+            ]
+        ]
+    },
+    {
+        "id": "6df0f3855cd48697",
+        "type": "within-time-switch",
+        "z": "7072a41db2ccafb4",
+        "name": "nach Sonnenuntergang",
+        "nameInt": "",
+        "positionConfig": "eaba5e04.aea4a8",
+        "startTime": "sunsetEnd",
+        "startTimeType": "pdsTime",
+        "startOffset": 0,
+        "startOffsetType": "none",
+        "startOffsetMultiplier": 60000,
+        "endTime": "22:15",
+        "endTimeType": "entered",
+        "endOffset": 0,
+        "endOffsetType": "none",
+        "endOffsetMultiplier": 60000,
+        "timeRestrictions": 0,
+        "timeRestrictionsType": "none",
+        "timeDays": "*",
+        "timeOnlyOddDays": false,
+        "timeOnlyEvenDays": false,
+        "timeMonths": "*",
+        "timedatestart": "",
+        "timedateend": "",
+        "propertyStart": "",
+        "propertyStartType": "none",
+        "propertyStartCompare": "true",
+        "propertyStartThreshold": "",
+        "propertyStartThresholdType": "num",
+        "startTimeAlt": "",
+        "startTimeAltType": "none",
+        "startOffsetAlt": 0,
+        "startOffsetAltType": "none",
+        "startOffsetAltMultiplier": 60000,
+        "propertyEnd": "",
+        "propertyEndType": "none",
+        "propertyEndCompare": "true",
+        "propertyEndThreshold": "",
+        "propertyEndThresholdType": "num",
+        "endTimeAlt": "",
+        "endTimeAltType": "none",
+        "endOffsetAlt": 0,
+        "endOffsetAltType": "none",
+        "endOffsetAltMultiplier": 60000,
+        "tsCompare": "0",
+        "x": 370,
+        "y": 660,
+        "wires": [
+            [
+                "d08bbc1c6a07d195"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "448ad6faebb423fb",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "abwesend",
+        "func": "var da = flow.get(\"Zeit_Anwesend\") + flow.get(\"Thomas_Anwesend\") + flow.get(\"Astrid.Anwesend\")\nda += flow.get(\"Esszimmer_an\")+flow.get(\"Wohnzimmer_an\")\nvar status = 0;\nif (da == 0)   \n    status = 1;\nmsg.payload = status;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 740,
+        "wires": [
+            [
+                "569dbdaaa5d687dd",
+                "3611236a262d7990"
+            ]
+        ]
+    },
+    {
+        "id": "d08bbc1c6a07d195",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Zeit_Anwesend",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ZeitAnwesend",
+                "pt": "flow",
+                "to": "1",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 660,
+        "wires": [
+            [
+                "448ad6faebb423fb"
+            ]
+        ]
+    },
+    {
+        "id": "1a2065f7dfd9ee60",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "ThomasDa",
+        "iface": "CUxD",
+        "channel": "CUX2801002:1 Thomas_da",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 150,
+        "y": 720,
+        "wires": [
+            [
+                "edbf8e0b548e3f28"
+            ]
+        ]
+    },
+    {
+        "id": "edbf8e0b548e3f28",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Thomas_Anwesend",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ThomasDa",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 720,
+        "wires": [
+            [
+                "448ad6faebb423fb"
+            ]
+        ]
+    },
+    {
+        "id": "115fabe826c9798b",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "AstridDa",
+        "iface": "CUxD",
+        "channel": "CUX2801002:2 Astrid_da",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 140,
+        "y": 760,
+        "wires": [
+            [
+                "aa73625a6e9bb4dd"
+            ]
+        ]
+    },
+    {
+        "id": "aa73625a6e9bb4dd",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Astrid_Anwesend",
+        "rules": [
+            {
+                "t": "set",
+                "p": "AstridDa",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 760,
+        "wires": [
+            [
+                "448ad6faebb423fb"
+            ]
+        ]
+    },
+    {
+        "id": "bc55ed77852c841f",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "EsszimmerAn",
+        "iface": "HmIP-RF",
+        "channel": "000855699C4EB9:4 Esszimmer",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 160,
+        "y": 800,
+        "wires": [
+            [
+                "7a65a1a22d409e0a"
+            ]
+        ]
+    },
+    {
+        "id": "7a65a1a22d409e0a",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Esszimmer_an",
+        "rules": [
+            {
+                "t": "set",
+                "p": "EsszimmerAn",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 800,
+        "wires": [
+            [
+                "448ad6faebb423fb"
+            ]
+        ]
+    },
+    {
+        "id": "850d68f4574255cd",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "WohnzimmerAn",
+        "iface": "HmIP-RF",
+        "channel": "00085709910157:4 Wohnzimmer",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 160,
+        "y": 840,
+        "wires": [
+            [
+                "f26867444b796494"
+            ]
+        ]
+    },
+    {
+        "id": "f26867444b796494",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Wohnzimmer_an",
+        "rules": [
+            {
+                "t": "set",
+                "p": "WohnzimmerAn",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 840,
+        "wires": [
+            [
+                "448ad6faebb423fb"
+            ]
+        ]
+    },
+    {
+        "id": "569dbdaaa5d687dd",
+        "type": "ccu-set-value",
+        "z": "7072a41db2ccafb4",
+        "name": "LichtAnwesend",
+        "iface": "CUxD",
+        "ccuConfig": "38263145.35ea0e",
+        "rooms": "",
+        "roomsRx": "str",
+        "functions": "",
+        "functionsRx": "str",
+        "device": "",
+        "deviceRx": "str",
+        "deviceName": "Anwesend",
+        "deviceNameRx": "str",
+        "deviceType": "",
+        "deviceTypeRx": "str",
+        "channel": "",
+        "channelRx": "str",
+        "channelName": "Lichtautomatik",
+        "channelNameRx": "str",
+        "channelType": "",
+        "channelTypeRx": "str",
+        "channelIndex": "",
+        "channelIndexRx": "str",
+        "datapoint": "STATE",
+        "datapointRx": "str",
+        "force": false,
+        "x": 1060,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "3611236a262d7990",
+        "type": "debug",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtanwesend",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1060,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "4bcd0adc01c66cf4",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "BadAn",
+        "iface": "HmIP-RF",
+        "channel": "000857099102F1:4 Bad",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 130,
+        "y": 900,
+        "wires": [
+            [
+                "cc06c7d000df9645"
+            ]
+        ]
+    },
+    {
+        "id": "cc06c7d000df9645",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Bad_an",
+        "rules": [
+            {
+                "t": "set",
+                "p": "BadAn",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 900,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bdacbffb8e5b811f",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "DachAn",
+        "iface": "BidCos-RF",
+        "channel": "NEQ0383519:1 Dach",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 140,
+        "y": 940,
+        "wires": [
+            [
+                "04212b9688f7af26"
+            ]
+        ]
+    },
+    {
+        "id": "04212b9688f7af26",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "Dach_an",
+        "rules": [
+            {
+                "t": "set",
+                "p": "DachAn",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ad20608912b8eb80",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "iface": "CUxD",
+        "channel": "CUX2801002:5 Lichtautomatik",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 160,
+        "y": 1100,
+        "wires": [
+            [
+                "da4956244c9ada75"
+            ]
+        ]
+    },
+    {
+        "id": "02a4b2b9e5827af0",
+        "type": "inject",
+        "z": "7072a41db2ccafb4",
+        "name": "Zufall Bad",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "780",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 1160,
+        "wires": [
+            [
+                "3d7fd8d8651d28b6"
+            ]
+        ]
+    },
+    {
+        "id": "3d7fd8d8651d28b6",
+        "type": "ccu-switch",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtorgel an?",
+        "ccuConfig": "38263145.35ea0e",
+        "iface": "CUxD",
+        "channel": "CUX2801002:5 Lichtautomatik",
+        "sysvar": "Alarmmeldungen",
+        "sysvarProperty": "value",
+        "datapoint": "STATE",
+        "datapointProperty": "value",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 1180,
+        "wires": [
+            [
+                "b85834b35c2072bb"
+            ]
+        ]
+    },
+    {
+        "id": "b85834b35c2072bb",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "random",
+        "func": "if (Math.floor(Math.random() * 10) < 2) {\n    msg.payload = 1;\n    return msg;\n}\nelse\n    msg.payload = 0;\nreturn  msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 1180,
+        "wires": [
+            [
+                "f4739436dc00d898"
+            ]
+        ]
+    },
+    {
+        "id": "64da1ef92bac33b7",
+        "type": "inject",
+        "z": "7072a41db2ccafb4",
+        "name": "Zufall Gang",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "480",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 1200,
+        "wires": [
+            [
+                "15981a4b83a0b08f"
+            ]
+        ]
+    },
+    {
+        "id": "15981a4b83a0b08f",
+        "type": "ccu-switch",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtorgel an?",
+        "ccuConfig": "38263145.35ea0e",
+        "iface": "CUxD",
+        "channel": "CUX2801002:5 Lichtautomatik",
+        "sysvar": "Alarmmeldungen",
+        "sysvarProperty": "value",
+        "datapoint": "STATE",
+        "datapointProperty": "value",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 1220,
+        "wires": [
+            [
+                "013bf36faef747d7"
+            ]
+        ]
+    },
+    {
+        "id": "013bf36faef747d7",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "random",
+        "func": "if (Math.floor(Math.random() * 10) < 2) {\n    msg.payload = 1;\n    return msg;\n}\nelse\n    msg.payload = 0;\nreturn  msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 1220,
+        "wires": [
+            [
+                "2a5a455903a437a8"
+            ]
+        ]
+    },
+    {
+        "id": "1c62ed968b359652",
+        "type": "inject",
+        "z": "7072a41db2ccafb4",
+        "name": "Zufall Keller",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "360",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 1240,
+        "wires": [
+            [
+                "1f6243e09ff52199"
+            ]
+        ]
+    },
+    {
+        "id": "1f6243e09ff52199",
+        "type": "ccu-switch",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtorgel an?",
+        "ccuConfig": "38263145.35ea0e",
+        "iface": "CUxD",
+        "channel": "CUX2801002:5 Lichtautomatik",
+        "sysvar": "Alarmmeldungen",
+        "sysvarProperty": "value",
+        "datapoint": "STATE",
+        "datapointProperty": "value",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 340,
+        "y": 1260,
+        "wires": [
+            [
+                "ed7b723da3cbc00c"
+            ]
+        ]
+    },
+    {
+        "id": "ed7b723da3cbc00c",
+        "type": "function",
+        "z": "7072a41db2ccafb4",
+        "name": "random",
+        "func": "if (Math.floor(Math.random() * 10) < 2) {\n    msg.payload = 1;\n    return msg;\n}\nelse\n    msg.payload = 0;\nreturn  msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 1260,
+        "wires": [
+            [
+                "2056abc38fd337bf"
+            ]
+        ]
+    },
+    {
+        "id": "da4956244c9ada75",
+        "type": "change",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "rules": [
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "false",
+                "fromt": "bool",
+                "to": "0",
+                "tot": "num"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "true",
+                "fromt": "bool",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 1100,
+        "wires": [
+            [
+                "e1875df286dbd60d"
+            ]
+        ]
+    },
+    {
+        "id": "8f35407bd659e69f",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "iface": "HmIP-RF",
+        "channel": "000855699C4EB9:4 Esszimmer",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 830,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f4739436dc00d898",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "Bad",
+        "iface": "HmIP-RF",
+        "channel": "000857099102F1:4 Bad",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 830,
+        "y": 1160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2a5a455903a437a8",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "iface": "BidCos-RF",
+        "channel": "NEQ0384129:1 Gang",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 830,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2056abc38fd337bf",
+        "type": "ccu-value",
+        "z": "7072a41db2ccafb4",
+        "name": "",
+        "iface": "BidCos-RF",
+        "channel": "NEQ0383931:1 Keller",
+        "datapoint": "STATE",
+        "mode": "",
+        "start": true,
+        "change": true,
+        "cache": false,
+        "queue": false,
+        "on": 0,
+        "onType": "undefined",
+        "ramp": 0,
+        "rampType": "undefined",
+        "working": false,
+        "ccuConfig": "38263145.35ea0e",
+        "topic": "${CCU}/${Interface}/${channel}/${datapoint}",
+        "x": 830,
+        "y": 1360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e1875df286dbd60d",
+        "type": "switch",
+        "z": "7072a41db2ccafb4",
+        "name": "schalte Ess ein oder alle aus",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 600,
+        "y": 1100,
+        "wires": [
+            [
+                "8f35407bd659e69f"
+            ],
+            [
+                "8f35407bd659e69f",
+                "f4739436dc00d898",
+                "2a5a455903a437a8",
+                "2056abc38fd337bf"
+            ]
+        ]
+    },
+    {
+        "id": "769c9679f1cafc02",
+        "type": "comment",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtorgel - Ausführung",
+        "info": "",
+        "x": 180,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "43eb4dfc6510194f",
+        "type": "comment",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtorgel Aktivierung",
+        "info": "",
+        "x": 160,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "d59f9c9c966168e0",
+        "type": "comment",
+        "z": "7072a41db2ccafb4",
+        "name": "Licht/Fenster vergessen",
+        "info": "",
+        "x": 140,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "43af765d92db98c3",
+        "type": "comment",
+        "z": "7072a41db2ccafb4",
+        "name": "Lichtwarner an/aus",
+        "info": "",
+        "x": 130,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "158f91f1223d0a24",
+        "type": "comment",
+        "z": "7072a41db2ccafb4",
+        "name": "löschen",
+        "info": "",
+        "x": 90,
+        "y": 1380,
+        "wires": []
+    }
+]

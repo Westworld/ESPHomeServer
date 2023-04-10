@@ -36,7 +36,8 @@ void MHZSensor::Run(int32_t zeit) {
             }
             lasttemp = temp;  
 
-             if (lastCo2 == Co2) {
+            Co2 = round(Co2/10)*10;
+            if (lastCo2 == Co2) {
              if (Co2counter++ > 60)   {
                 MQTT_Send((char const *) "HomeServer/WZ/Co2", Co2); 
                 Co2counter = 0;
