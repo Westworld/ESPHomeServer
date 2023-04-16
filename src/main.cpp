@@ -14,10 +14,12 @@
 #include "MHZSensor.h"
 #include "wasser.h"
 #include "garage.h"
+#include "Strom.h"
 
 /*
 selbst: http://192.168.0.59/
 http://esphomeserver.fritz.box/sendfile?Folder
+http://esphomeserver.fritz.box/debug?Delete
 
 Rolladen 3 - Lets do it - 192.168.0.85
 Dreamer Power - 192.168.0.107
@@ -27,6 +29,8 @@ Rule1 war:
 
 
 */
+
+#define StorageVersion 1
 
 extern void Homematic_Set(String device, int8_t status);
 
@@ -79,6 +83,7 @@ Waage * waage;
 MHZSensor * mhzsensor;
 Wasser * wasser;
 Garage * garage;
+Strom * strom;
 
 void setTimeZone(String TimeZone) {
   struct tm local;
@@ -120,6 +125,7 @@ void setup() {
 
     ArduinoOTA
     .onStart([]() {
+      logSDFile(false);
       String type;
       if (ArduinoOTA.getCommand() == U_FLASH)
         type = "sketch";
@@ -214,6 +220,8 @@ void setup() {
   sensor[sensorcounter++] = wasser;
   garage = new Garage();
   sensor[sensorcounter++] = garage;
+  strom = new Strom();
+  sensor[sensorcounter++] = strom;
 
 // Web request handler
   server.on("/4DAction/Strom", handleStrom);
@@ -274,10 +282,13 @@ void loop() {
   else
   {
     //  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
-      if (timeinfo.tm_hour != SDLog_Lasthour)  {
+      if (timeinfo.tm_hour != SDLog_Lasthour)  {       
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
         logSDFile(false);
+        for (int16_t i=0; i<sensorcounter;i++) {  
+          sensor[i]->runStunde();
+        }
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
@@ -351,12 +362,18 @@ void handleStrom() {
 }
 
 void webdebug() {
+  if (server.hasArg("Delete"))  {
+    WebDeleteCurFile();
+    logSDFile(true);
+  } // irgendeinen anderen Namen
+else {
   String message= "";
   for (int16_t i=0; i<sensorcounter; i++) {
     message = message + sensor[i]->serialize() + "\n";
   }
 
   server.send(200, "text/plain", message);
+  }
 }
 
 void handleFile() {
@@ -380,11 +397,19 @@ void handleFile() {
         WebSendDirList(true);
     }    
     else
-    {  // irgendeinen anderen Namen
+    {  
         WebSendDirList(false);
     }
   }
     
+}
+
+void WebDeleteCurFile() {
+  char name[31];
+  setSDFileName(name);
+
+  SD.remove(name);
+  server.send(200, "text/html", "Deleted"); 
 }
 
 String prepareHtmlPage() {
@@ -411,14 +436,14 @@ String prepareHtmlPage() {
 // %;year-month-day_hour-min;Scale_Buddy;Scale_Buddy_Tag ... MHZ_CO2;MHZ_temp;MHZ_Accuracy
 // on boot, load last values (needed with battery?)
 
-void SDsetFileName(char * name) {
+void setSDFileName(char * name) {
   snprintf(name, 30, "/Data_%04d_%02d.txt", timeinfo.tm_year+1900, timeinfo.tm_mon+1);
 }
 
 String SDwriteHeader() {
   String data;
   char buffer[100];
-  snprintf(buffer, 100, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+  snprintf(buffer, 100, "#%02d;%04d-%02d-%02d_%02d-%02d", StorageVersion, timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
   data = buffer;
   for (int16_t i=0; i<sensorcounter; i++) {
     data = data + sensor[i]->WriteHeader();
@@ -441,7 +466,7 @@ void logSDFile(bool headeronly) {
   char name[31];
   String data;
 
-  SDsetFileName(name);
+  setSDFileName(name);
 
   if (SD.exists(name)) {
     sdcard = SD.open(name, FILE_APPEND);
@@ -548,7 +573,7 @@ void WebSendDirList(bool textonly)
 String ReadLastLine()
 {
     char name [30];
-    SDsetFileName(name);
+    setSDFileName(name);
     UDBDebug(name);
     if (!SD.exists(name)) {
       UDBDebug("File does not exists");
@@ -592,17 +617,21 @@ void ReadAndParseLastLine() {
   String lastline = ReadLastLine();
   UDBDebug(lastline);
   if (lastline.charAt(0) == '#') {
-    lastline = lastline.substring(2);
-    int16_t pos = lastline.indexOf(';');
-    if(pos >= 0) {
-      lastline = lastline.substring(pos+1);
-      for (int16_t i=0; i<sensorcounter;i++) {  
-        lastline = sensor[i]->readLastLine(lastline);  // first ; already removed
-        UDBDebug(sensor[i]->serialize());
-        UDBDebug(lastline);
+    String theVersion = lastline.substring(1,2);
+    int8_t theVersion_i = theVersion.toInt();
+    if (theVersion_i == StorageVersion) {
+      lastline = lastline.substring(3);
+      int16_t pos = lastline.indexOf(';');
+      if(pos >= 0) {    
+        lastline = lastline.substring(pos+1);
+        for (int16_t i=0; i<sensorcounter;i++) {  
+          lastline = sensor[i]->readLastLine(lastline);  // first ; already removed
+          UDBDebug(sensor[i]->serialize());
+          UDBDebug(lastline);
+        }
       }
     }
-  }
+  }  
 }
 
 void UDBDebug(String message) {
@@ -614,7 +643,7 @@ void UDBDebug(String message) {
 }
 
 void MQTT_Send(char const * topic, String value) {
-    UDBDebug("MQTT " +String(topic)+" "+value); 
+    //UDBDebug("MQTT " +String(topic)+" "+value); 
     //Serial.println("MQTT " +String(topic)+" "+value) ;
     if (!mqttclient.publish(topic, value.c_str(), true)) {
        UDBDebug("MQTT error");  
@@ -646,15 +675,13 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
     int8_t joblength = message.length()+1;// 0 char
     payload[length] = '\0';
     String value = String((char *) payload);
-    //UDBDebug(message +" - "+value);
+    //UDBDebug("### "+message +" - "+value);
     
     for (int16_t i=0; i<sensorcounter;i++) {  
         if (sensor[i]->HandleMQTT(message, joblength, value))
           return;
       }
 
-    if (message.startsWith("HomeServer/Heizung") )  
-      UDBDebug("DEBUG### "+message +" - "+value);
 }
 
 // EMAIL
@@ -677,7 +704,7 @@ void EMail_Send(String textmessage) {
   message.sender.name = "ESP";
   message.sender.email = email_user;
   message.subject = F("HomeServer Alert");
-  message.addRecipient(email_pass, email_user);
+  message.addRecipient(email_user, email_user);
 
   message.text.content = textmessage.c_str();
   message.text.charSet = "us-ascii";
@@ -696,13 +723,13 @@ void EMail_Send(String textmessage) {
 void smtpCallback(SMTP_Status status)
 {
   /* Print the current status */
-  UDBDebug(String(status.info()));
+ // UDBDebug(String(status.info()));
 
   /* Print the sending result */
   if (status.success())
   {
-    UDBDebug("Message sent success: "+String(status.completedCount()));
-    UDBDebug("Message sent failed: "+String(status.failedCount()));
+    //UDBDebug("Message sent success: "+String(status.completedCount()));
+    //UDBDebug("Message sent failed: "+String(status.failedCount()));
     // You need to clear sending result as the memory usage will grow up.
     smtp.sendingResult.clear();
   }

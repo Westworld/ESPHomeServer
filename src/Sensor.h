@@ -25,6 +25,7 @@ class Sensor
         virtual String WriteData();
         virtual String WriteDayData();
         virtual String readLastLine(String &lastline);
+        virtual void runStunde(); 
         bool get_token_Stored_Data(String &from, float &to);
 };
 

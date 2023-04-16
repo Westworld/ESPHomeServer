@@ -13,6 +13,10 @@ void Sensor::Run(int32_t zeit) {
     //Serial.print("Sensor: ");//+zeit);
 }
 
+void Sensor::runStunde() {
+    
+}
+
 bool Sensor::HandleWebCall(String Job, short strlenr) {
     return false;
 }

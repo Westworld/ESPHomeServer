@@ -7,7 +7,6 @@ extern struct tm timeinfo;
 
 bool Wasser::HandleMQTT(String message, short joblength, String value) {
 
-
   const char IsDay[] = "HomeServer/Heizung/WasserDay";
   const char IsCounter[] = "HomeServer/Heizung/Wasser";
 
@@ -16,6 +15,7 @@ bool Wasser::HandleMQTT(String message, short joblength, String value) {
         if (message == IsDay) {
             counterday = value.toFloat(); 
             lastUpdated = millis();
+            //UDBDebug("DEBUG IsDay "+message +" - "+String(counterday));
             return true;
         }
         break;
@@ -23,6 +23,7 @@ bool Wasser::HandleMQTT(String message, short joblength, String value) {
         if (message == IsCounter) {
             counter = value.toFloat(); 
             lastUpdated = millis();
+            //UDBDebug("DEBUG### isCounter "+message +" - "+String(counter));
             return true;
         }
         break;
@@ -56,7 +57,7 @@ String Wasser::WriteDayHeader() {
 
 String Wasser::WriteData() {
   char buffer[100];
-  snprintf(buffer, 100, ";%d;%d", counter, counterday);
+  snprintf(buffer, 100, ";%ld;%ld", counter, counterday);
   return String(buffer);    
 }
 
@@ -72,9 +73,8 @@ String Wasser::readLastLine(String &lastline) {
     int16_t index = 0;
     float result = 0;
     if (!get_token_Stored_Data(lastline, result)) return "";
-    counter = result;
-    if (!get_token_Stored_Data(lastline, result)) return "";
     counterday = result;
+ UDBDebug("Read Last Line Wasser: "+String(counterday));   
     return lastline;
 
 }
