@@ -18,6 +18,10 @@ class Strom: public Sensor
         float ProduktionAvg[15];
         int8_t ProduktionCounter=0, StundeProduktionCounter=0;
         float CurStundeProduktion=0, TagProduktion=0;
+        int8_t WallboxCar=0, WallboxAmp=0, WallboxPsm=0;
+        int32_t WallboxEto=0, WallboxNrg=0;
+        bool WallboxAlw=false;
+
 
     public:
         virtual bool HandleMQTT(String message, short joblength, String value);

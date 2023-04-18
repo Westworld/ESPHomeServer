@@ -13,14 +13,21 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
   const char IsEinzelVerbrauch[] = "HomeServer/Einzel/Gesamt";
   const char IsProduktion[] =      "HomeServer/Strom/Produktion";
 
+  const char IsWallboxCar[] =      "HomeServer/Wallbox/car";
+  const char IsWallboxAmp[] =      "HomeServer/Wallbox/amp";
+  const char IsWallboxAlw[] =      "HomeServer/Wallbox/alw";
+  const char IsWallboxEto[] =      "HomeServer/Wallbox/eto";
+  const char IsWallboxPsm[] =      "HomeServer/Wallbox/psm";
+  const char IsWallboxNrg[] =      "HomeServer/Wallbox/nrg";
+
   switch (joblength) {
     case sizeof(IsKauf): 
         if (message == IsKauf) {
             float curValue = value.toFloat(); 
             if (StromKauf != 0) {
-                curStromKauf = curValue - StromKauf;
+                curStromKauf = (curValue - StromKauf*1000);
                 StromKauf = curValue;
-                TagStromKauf = curValue - TagStromKaufStart;
+                TagStromKauf = (curValue - TagStromKaufStart)*1000;
                 MQTT_Send((char const *) "HomeServer/Strom/curKauf", curStromKauf); 
                 MQTT_Send((char const *) "HomeServer/Strom/TagKauf", TagStromKauf); 
             }
@@ -37,9 +44,9 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         if (message == IsVerkauf) {
             float curValue = value.toFloat(); 
             if (StromVerkauf != 0) {
-                curStromVerkauf = curValue - StromVerkauf;
+                curStromVerkauf = (curValue - StromVerkauf)*1000;
                 StromVerkauf = curValue;
-                TagStromVerkauf = curValue - TagStromVerkaufStart;
+                TagStromVerkauf = (curValue - TagStromVerkaufStart)*1000;
                 MQTT_Send((char const *) "HomeServer/Strom/curVerkauf", curStromVerkauf); 
                 MQTT_Send((char const *) "HomeServer/Strom/TagVerkauf", TagStromVerkauf); 
             }
@@ -50,10 +57,13 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             lastUpdated = millis();
             return true;
         }
-        break;
+
         if (message == IsEinzelVerbrauch) {
             Einzelverbrauch = value.toFloat();
             CurStundeEinzelVerbrauch += Einzelverbrauch;
+            StundeEinzelVerbrauchCounter++;
+            TagEinzelVerbrauch += ((CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter)/60);
+            MQTT_Send((char const *) "HomeServer/Strom/TagEinzelverbrauch", (long)(TagEinzelVerbrauch)); 
             StundeEinzelVerbrauchCounter++;
             return true;
         }
@@ -64,6 +74,8 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             float Prod = value.toFloat();
             CurStundeProduktion += Prod;
             StundeProduktionCounter++;
+            TagProduktion += ((CurStundeProduktion/StundeProduktionCounter)/60);
+            MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion)); 
             if (ProduktionCounter>14) {
                 for (short i=0;i<14;i++) {
                     ProduktionAvg[i] = ProduktionAvg[i+1];
@@ -76,7 +88,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
                 Prod += ProduktionAvg[i];
             }            
             Prod /= ProduktionCounter;
-            MQTT_Send((char const *) "HomeServer/Strom/ProduktionAVG", Prod); 
+            MQTT_Send((char const *) "HomeServer/Strom/ProduktionAVG", (long)(Prod)); 
             return true;
         }
         break;
@@ -86,6 +98,8 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             BatterieVerbrauch = value.toFloat();
             CurStundeBatVerbrauch += BatterieVerbrauch;
             CurStundeBatCounter++;
+            TagBatVerbrauch += ((CurStundeBatVerbrauch/CurStundeBatCounter)/60);
+            MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", (long)(TagBatVerbrauch)); 
             return true;
         }
         break;
@@ -95,9 +109,43 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             BatterieProduktion = value.toFloat();
             CurStundeBatProduktion += BatterieProduktion;
             StundeBatProdCounter++;
+            TagBatProduktion += ((CurStundeBatProduktion/StundeBatProdCounter)/60);
+            MQTT_Send((char const *) "HomeServer/Strom/TagBatProduktion", (long)(TagBatProduktion)); 
             return true;
         }
         break;
+
+    case sizeof(IsWallboxAlw):   // and andereWaööbpx
+        if (message == IsWallboxCar) {
+            WallboxCar = value.toInt();
+            return true;
+        }
+        if (message == IsWallboxAmp) {
+            WallboxAmp = value.toInt();
+            return true;
+        }
+        if (message == IsWallboxAlw) {
+            if (value == "false")
+                WallboxAlw = false;
+            else   
+                WallboxAlw = true;
+            return true;
+        }
+        if (message == IsWallboxEto) {
+            WallboxEto = value.toInt();
+            return true;
+        }
+        if (message == IsWallboxPsm) {
+            WallboxPsm = value.toInt();
+            return true;
+        }
+        if (message == IsWallboxNrg) {
+            WallboxNrg = value.toInt();
+            return true;
+        }                        
+        break;
+
+
     default:
         break;
   }
@@ -109,6 +157,9 @@ void Strom::runStunde() {
     CurStundeEinzelVerbrauch= CurStundeBatProduktion= CurStundeBatVerbrauch = 0;
     StundeEinzelVerbrauchCounter= StundeBatProdCounter= CurStundeBatCounter=0; 
 }
+
+/* ##########   Wallbox  */
+
 
 
 String Strom::serialize() {
@@ -128,6 +179,34 @@ String Strom::serialize() {
     result += BatterieProduktion; 
     result += ", BatterieVerbrauch = ";
     result += BatterieVerbrauch; 
+    result += ", TagProduktion = ";
+
+    result += CurStundeEinzelVerbrauch; 
+    result += ", CurStundeEinzelVerbrauch = ";
+    result += CurStundeBatProduktion; 
+    result += ", CurStundeBatProduktion = ";
+    result += CurStundeBatVerbrauch; 
+    result += ", CurStundeBatVerbrauch = ";        
+
+    result += TagProduktion;
+    result += ", TagBatProduktion = ";
+    result += TagBatProduktion;
+    result += ", TagBatVerbrauch = ";
+    result += TagBatVerbrauch;
+    result += ", TagEinzelverbrauch = ";
+    result += TagEinzelVerbrauch;
+    result += ", WallboxCar = ";
+    result += WallboxCar;
+    result += ", WallboxAmp = ";
+    result += WallboxAmp;
+    result += ", WallboxAlw = ";
+    result += WallboxAlw;
+    result += ", WallboxEto = ";
+    result += WallboxEto;
+    result += ", WallboxPsm = ";
+    result += WallboxPsm;
+    result += ", WallboxNrg = ";
+    result += WallboxNrg;
     result += "\nLastUpdate = ";
     result += lastUpdated;
 
