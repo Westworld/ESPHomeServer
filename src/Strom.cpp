@@ -24,6 +24,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
     case sizeof(IsKauf): 
         if (message == IsKauf) {
             float curValue = value.toFloat(); 
+            UDBDebug("StromKauf: "+String(curValue));
             if (StromKauf != 0) {
                 curStromKauf = (curValue - StromKauf*1000);
                 StromKauf = curValue;
@@ -214,16 +215,28 @@ String Strom::serialize() {
 }
 
 
+void Strom::ToJson(JsonObject json){
+    json["StromKauf"] = round2(StromKauf);
+    json["StromVerkauf"] = round2(StromVerkauf);
+    json["TagStromKauf"] = round2(TagStromKauf);
+    json["TagStromVerkauf"] = round2(TagStromVerkauf);
+    json["Einzelverbrauch"] = round2(Einzelverbrauch);
+    json["BatterieProduktion"] = round2(BatterieProduktion);
+    json["BatterieVerbrauch"] = round2(BatterieVerbrauch);     
+    json["TagBatProduktion"] = round2(TagBatProduktion);
+    json["TagBatVerbrauch"] = round2(TagBatVerbrauch);  
+    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
+}
+
 
 String Strom::WriteHeader() {
-    return ";StromKauf;StromVerkauf;TagStromKaufStart;TagStromVerkaufStart;TagStromKauf;TagStromVerkauf;\
-TagEinzelVerbrauch;TagBatProduktion;TagBatVerbrauch;\
-CurStundeEinzelVerbrauch;CurStundeBatVerbrauch;CurStundeBatProduktion;CurStundeProduktion;TagProduktion";
+    return ";StromKauf;StromVerkauf;TagStromKauf;TagStromVerkauf;\
+TagEinzelVerbrauch;TagBatProduktion;TagBatVerbrauch;TagProduktion";
 }
 
 String Strom::WriteDayHeader() {
-    return ";StromKauf;StromVerkauf;TagStromKaufStart;TagStromVerkaufStart;TagStromKauf;TagStromVerkauf;\
-Einzelverbrauch;BatterieProduktion;BatterieVerbrauch;Produktion";
+    return ";StromKauf;StromVerkauf;TagStromKauf;TagStromVerkauf;\
+TagEinzelVerbrauch;TagBatProduktion;TagBatVerbrauch;TagProduktion";
 }
 
 String Strom::WriteData() {
@@ -239,16 +252,14 @@ String Strom::WriteData() {
     _CurStundeBatProduktion = CurStundeBatProduktion/StundeBatProdCounter;
 
   snprintf(buffer, 100, ";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.0f;%.0f;%0.f;%.0f;%.0f;%0.f", StromKauf, StromVerkauf,\
-TagStromKaufStart, TagStromVerkaufStart, TagStromKauf, TagStromVerkauf,\
-TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch, _CurStundeEinzelVerbrauch, \
-    _CurStundeBatVerbrauch, _CurStundeBatProduktion);
+TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch, TagProduktion);
   return String(buffer);    
 }
 
 String Strom::WriteDayData() {
   char buffer[100];
   snprintf(buffer, 100, ";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.0f;%.0f;%0.f;%.f", StromKauf, StromVerkauf, \
-TagStromKaufStart, TagStromVerkaufStart, TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch,TagProduktion);
+TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch,TagProduktion);
   TagStromKaufStart=StromKauf;
   TagStromVerkaufStart=StromVerkauf;
   TagStromKauf=0;

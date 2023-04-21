@@ -20,6 +20,7 @@ class Wasser: public Sensor
         virtual String WriteDayHeader();
         virtual String WriteDayData();
         virtual String readLastLine(String &lastline);     
+        virtual void ToJson(JsonObject json); 
 };
 
 #endif

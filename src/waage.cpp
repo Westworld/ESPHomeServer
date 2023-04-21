@@ -60,7 +60,7 @@ void Waage::CheckTagUpdate() {
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Buddy", Buddy); 
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Mika", Mika); 
             MQTT_Send((char const *) "HomeServer/Tiere/Tag_Matti", Matti); 
-        UDBDebug(serialize());
+        //UDBDebug(serialize());
         }
 }
 
@@ -97,6 +97,17 @@ String Waage::serialize() {
     result += tag_Matti_last;  
 
     return result;
+}
+
+
+void Waage::ToJson(JsonObject json){
+    json["Buddy"] = round2(Buddy);
+    json["Mika"] = round2(Mika);
+    json["Matti"] = round2(Matti);
+    json["Timmi"] = round2(Timmi);
+    json["tag_Buddy"] = round2(tag_Buddy);
+    json["tag_Mika"] = round2(tag_Mika);
+    json["tag_Matti"] = round2(tag_Matti);     
 }
 
 String Waage::WriteHeader() {

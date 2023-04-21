@@ -30,7 +30,8 @@ class Strom: public Sensor
         virtual String WriteData();   
         virtual String WriteDayHeader();
         virtual String WriteDayData();
-        virtual String readLastLine(String &lastline);    
+        virtual String readLastLine(String &lastline);  
+        virtual void ToJson(JsonObject json);  
         virtual void runStunde(); 
 };
 

@@ -2,6 +2,7 @@
 #define Sensor_HPP_
 
 #include <ESP32WebServer.h>
+#include "ArduinoJson.h"
 
 extern void UDBDebug(String message);
 extern void MQTT_Send(char const * topic, float value); 
@@ -26,7 +27,9 @@ class Sensor
         virtual String WriteDayData();
         virtual String readLastLine(String &lastline);
         virtual void runStunde(); 
+        virtual void ToJson(JsonObject json);
         bool get_token_Stored_Data(String &from, float &to);
+        double round2(double value);
 };
 
 #endif

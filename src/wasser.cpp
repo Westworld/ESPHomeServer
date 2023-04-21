@@ -34,6 +34,12 @@ bool Wasser::HandleMQTT(String message, short joblength, String value) {
   return false;
 }
 
+void Wasser::ToJson(JsonObject json){
+    json["counter"] = counter;
+    json["counterday"] = counterday;
+}
+
+
 String Wasser::serialize() {
     String result="";
 

@@ -9,17 +9,13 @@
 
 void MQTT_reconnect();
 void handleStrom();
-void handleFile(void);
-String prepareHtmlPage(void);
-void setSDFileName(char * name);
 void logSDFile(bool headeronly);
 void logDaySDFile(void);
 String SDDaywriteHeader();
-void WebSendDirList(bool textonly);
-String ReadLastLine();
-void ReadAndParseLastLine();
 void webdebug(void);
+void webtest(void);
 void UDBDebug(String message);
+void UDBDebug(const char *message);
 void MQTT_Send(char const * topic, String value);
 void MQTT_Send(char const * topic, float value); 
 void MQTT_Send(char const * topic, int16_t value);
@@ -27,4 +23,4 @@ void MQTT_Send(char const * topic, long value);
 void MQTT_callback(char* topic, byte* payload, unsigned int length);
 void EMail_Send(String message);
 void smtpCallback(SMTP_Status status);
-void WebDeleteCurFile();
+void jsonstatussend();

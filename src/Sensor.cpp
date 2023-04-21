@@ -46,6 +46,10 @@ String Sensor::readLastLine(String &lastline) {
     return lastline;
 }
 
+void Sensor::ToJson(JsonObject json) {
+
+}
+
 bool Sensor::get_token_Stored_Data(String &from, float &to)
 {
   int16_t pos = from.indexOf(';');
@@ -61,3 +65,6 @@ bool Sensor::get_token_Stored_Data(String &from, float &to)
   }  
 }
 
+double Sensor::round2(double value) {
+   return (int)(value * 100 + 0.5) / 100.0;
+}

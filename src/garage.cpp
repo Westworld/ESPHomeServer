@@ -228,6 +228,7 @@ String Garage::WriteDayData() {
 }
 
 String Garage::readLastLine(String &lastline) {
+
     // first ; already removed
     int16_t index = 0;
     float result = 0;
@@ -238,3 +239,9 @@ String Garage::readLastLine(String &lastline) {
     return lastline;
 
 }
+
+void Garage::ToJson(JsonObject json){
+    json["counter"] = counter;
+    json["counterday"] = counterday;
+}
+
