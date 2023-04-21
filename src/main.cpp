@@ -1,7 +1,7 @@
 #include "main.h"
 
-#include "FS.h"
-#include "SD.h"
+//#include "FS.h"
+//#include "SD.h"
 #include "SPI.h"
 #include <PubSubClient.h>
 #include <HTTPClient.h>
@@ -11,7 +11,6 @@
 #include <fstream>
 
 #include "waage.h"
-#include "MHZSensor.h"
 #include "wasser.h"
 #include "garage.h"
 #include "Strom.h"
@@ -62,13 +61,6 @@ char SDLog_Lastmin = -1;
 char time_last_restart_day = -1;
 char SDLog_Lastday = -1;
 
-File sdcard;
-
-#define RXD2 27
-#define TXD2 26  // MHZ Sensor
-
-#define Touchsensor 12
-
 #define SMTP_HOST "smtp.gmail.com"
 #define SMTP_PORT 465
 /* The SMTP Session object used for Email sending */
@@ -80,7 +72,6 @@ ESP32WebServer server(80);
 Sensor * sensor[10];
 int16_t sensorcounter=0;
 Waage * waage;
-MHZSensor * mhzsensor;
 Wasser * wasser;
 Garage * garage;
 Strom * strom;
@@ -118,14 +109,13 @@ void WifiConnect() {
 }
 
 void setup() {
-  Serial1.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.begin(115200);
 
   WifiConnect() ;
 
     ArduinoOTA
     .onStart([]() {
-      logSDFile(false);
+      jsonstatussend();
       String type;
       if (ArduinoOTA.getCommand() == U_FLASH)
         type = "sketch";
@@ -154,41 +144,10 @@ void setup() {
 
   setTimeZone(MY_TZ);
 
-  UDBDebug("start - vor SDCard");
-
-  if(!SD.begin(5)){
-    Serial.println("Card Mount Failed");
-  }
-
-
-  uint8_t cardType = SD.cardType();
-
-  if(cardType == CARD_NONE){
-    Serial.println("No SD card attached");
-    return;
-  }
-
-  Serial.print("SD Card Type: ");
-  if(cardType == CARD_MMC){
-    Serial.println("MMC");
-  } else if(cardType == CARD_SD){
-    Serial.println("SDSC");
-  } else if(cardType == CARD_SDHC){
-    Serial.println("SDHC");
-  } else {
-    Serial.println("UNKNOWN");
-  }
-
-  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.printf("SD Card Size: %lluMB\n", cardSize);
-
-  UDBDebug("SD Card Size: "+String(cardSize));
-
  // MQTT
  Serial.printf("vor MQTT");
     mqttclient.setServer(mqtt_server, 1883);
     mqttclient.setCallback(MQTT_callback);
-   Serial.printf("nach MQTT1");
    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       //mqttclient.publish("outTopic","hello world");
       UDBDebug("MQTT connect successful"); 
@@ -214,8 +173,6 @@ void setup() {
  // DEVICES
   waage = new Waage();
   sensor[sensorcounter++] = waage;
-  mhzsensor = new MHZSensor(&Serial2);
-  sensor[sensorcounter++] = mhzsensor;
   wasser = new Wasser();
   sensor[sensorcounter++] = wasser;
   garage = new Garage();
@@ -225,21 +182,16 @@ void setup() {
 
 // Web request handler
   server.on("/4DAction/Strom", handleStrom);
-  server.on("/sendfile", handleFile);
   server.on("/debug", webdebug);
+  server.on("/test", webtest);
+ // server.on("/", handleFile);
   server.begin();
 
   // Email
   smtp.callback(smtpCallback);
 
-  ReadAndParseLastLine();
-
-  logSDFile(true);
-
   Serial.println("all systems go...");
   UDBDebug("all systems go...");
-
-  //EMail_Send("all systems go...");
 }
 
 
@@ -260,17 +212,6 @@ void loop() {
   static int32_t zeitcounter=0;
 
   zeit = millis();
-  /*
-  if (altzeit != 0) {
-    gesamtzeit += (zeit-altzeit);
-  }
-  altzeit = zeit;
-  if (zeitcounter++ > 10000) {
-    zeitcounter = 0;
-    UDBDebug("Loop Zeit: "+String(gesamtzeit));
-    gesamtzeit = 0;
-  }
-  */
 
   for (int16_t i=0; i<sensorcounter;i++) {  
     sensor[i]->Run(zeit);
@@ -285,10 +226,12 @@ void loop() {
       if (timeinfo.tm_hour != SDLog_Lasthour)  {       
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
-        logSDFile(false);
+        //logSDFile(false);
         for (int16_t i=0; i<sensorcounter;i++) {  
           sensor[i]->runStunde();
         }
+
+        jsonstatussend();
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
@@ -300,14 +243,13 @@ void loop() {
       if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
       {
         // time for restart !! one restart every week
+        jsonstatussend();
         ESP.restart();
       }
       else time_last_restart_day = timeinfo.tm_wday;
 
   }  // time success received
 }
-
-// size_t sent = server.streamFile(file, contentType);
 
 void handleStrom() {
 
@@ -362,107 +304,47 @@ void handleStrom() {
 }
 
 void webdebug() {
-  if (server.hasArg("Delete"))  {
-    WebDeleteCurFile();
-    logSDFile(true);
-  } // irgendeinen anderen Namen
-else {
   String message= "";
   for (int16_t i=0; i<sensorcounter; i++) {
     message = message + sensor[i]->serialize() + "\n";
   }
 
   server.send(200, "text/plain", message);
-  }
 }
 
-void handleFile() {
-  // http://esphomeserver.fritz.box/sendfile?File=Data_2023_02.txt
-  //http://esphomeserver.fritz.box/sendfile?Folder
-  if (server.hasArg("File"))  {
-    Serial.println(server.arg("File"));
-    String job = "/"+server.arg("File");
-    Serial.println("Try to send: "+job);
-    if (SD.exists(job)) {
-      sdcard = SD.open(job, FILE_READ);
-      size_t sent = server.streamFile(sdcard, "text/plain");
-      sdcard.close();
-      Serial.println("file send...");
-    }
-    else
-      server.send(200, "text/html", "File not found");
-  }  
-  else   {
-    if (server.hasArg("Folder"))  {
-        WebSendDirList(true);
-    }    
-    else
-    {  
-        WebSendDirList(false);
-    }
-  }
-    
+void webtest() {
+    const int capacity = 500; 
+    StaticJsonDocument<capacity> doc;
+
+    garage->ToJson(doc.createNestedObject("garage"));
+    wasser->ToJson(doc.createNestedObject("wasser"));
+    waage->ToJson(doc.createNestedObject("waage"));
+    strom->ToJson(doc.createNestedObject("strom"));
+
+    //char output[500];
+    String output;
+    serializeJson(doc, output);
+
+    server.send(200, "text/plain", output);
 }
 
-void WebDeleteCurFile() {
-  char name[31];
-  setSDFileName(name);
+void jsonstatussend() {
+      const int capacity = 500; 
+      StaticJsonDocument<capacity> doc;
 
-  SD.remove(name);
-  server.send(200, "text/html", "Deleted"); 
-}
+    garage->ToJson(doc.createNestedObject("garage"));
+    wasser->ToJson(doc.createNestedObject("wasser"));
+    waage->ToJson(doc.createNestedObject("waage"));
+    strom->ToJson(doc.createNestedObject("strom"));
 
-String prepareHtmlPage() {
-  String htmlPage = String("OK");
-  /*
-    String("HTTP/1.1 200 OK\r\n") +
-    "Content-Type: text/html\r\n" +
-    "Connection: close\r\n" +  // the connection will be closed after completion of the response
-    "\r\n" +
-    "<!DOCTYPE HTML>" +
-    "<html>" +
-    "Done"
-    "</html>" +
-    "\r\n";
-    */
-  return htmlPage;
-}
+    String output;
+    serializeJson(doc, output);
 
-// SD Card
-// once per hour store last values.  
-// store when pin is pressed, to allow power remove (needed with battery?)
-// File name like Data_2022_12.txt
-// if file not exists create with titles in first line
-// %;year-month-day_hour-min;Scale_Buddy;Scale_Buddy_Tag ... MHZ_CO2;MHZ_temp;MHZ_Accuracy
-// on boot, load last values (needed with battery?)
-
-void setSDFileName(char * name) {
-  snprintf(name, 30, "/Data_%04d_%02d.txt", timeinfo.tm_year+1900, timeinfo.tm_mon+1);
-}
-
-String SDwriteHeader() {
-  String data;
-  char buffer[100];
-  snprintf(buffer, 100, "#%02d;%04d-%02d-%02d_%02d-%02d", StorageVersion, timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
-  data = buffer;
-  for (int16_t i=0; i<sensorcounter; i++) {
-    data = data + sensor[i]->WriteHeader();
-  }
-  return data;
-}
-
-String SDDaywriteHeader() {
-  String data;
-  char buffer[100];
-  snprintf(buffer, 100, "+;%04d", timeinfo.tm_year+1900);
-  data = buffer;
-  for (int16_t i=0; i<sensorcounter; i++) {
-    data = data + sensor[i]->WriteDayHeader();
-  }
-  return data;
+    MQTT_Send("HomeServer/Server/Data", output);
 }
 
 void logSDFile(bool headeronly) {
+  /*
   char name[31];
   String data;
 
@@ -494,9 +376,14 @@ void logSDFile(bool headeronly) {
     sdcard.println(data);
   }  
   sdcard.close();
+*/
+  String memory = "getFreeHeap: "+ESP.getFreeHeap();
+  memory += ("getMaxAllocHeap: "+ESP.getMaxAllocHeap());
+  UDBDebug(memory);
 }
 
 void logDaySDFile(void) {
+  /*
   char name[31];
   String data;
 
@@ -521,117 +408,7 @@ void logDaySDFile(void) {
   data += ';';
   sdcard.println(data);
   sdcard.close();
-}
-
-void WebSendDirList(bool textonly)
-{  
-  String dirchar = "/";
-  String content = "";
-  File root;
-
-  String answer;
-  if (textonly)
-   answer = "";
-  else
-   answer =  String("<!DOCTYPE HTML><html><body>");
-
-  root = SD.open("/");
-  while (true)
-  {
-    File entry =  root.openNextFile();
-    short filetype=0;
-    if (! entry)
-    {
-      // no more files
-      break;
-    }
-    
-    if (entry.isDirectory()) 
-    {
-      // Skip file if in subfolder
-       entry.close(); // Close folder entry
-    } 
-    else
-    {
-      //Serial.println(entry.name());
-      String dirname = root.name();
-      String filename = entry.name();
-      if (filename.startsWith(".")) continue;
-      //filename = dirchar + filename;
-      if (textonly)
-        answer = answer + filename + String('\t')+String(entry.size())+String('\n');
-      else
-        answer = answer + String("<a href=\"/sendfile?File=")+filename+String("\">")+filename + String(" - ")+String(entry.size())+String("</a><br>\r\n");
-      entry.close();
-    }
-  }
-  if (!textonly)
-    answer =  answer + String("</body></html>\r\n");
-  server.send(200, "text/html", answer);
-}
-
-String ReadLastLine()
-{
-    char name [30];
-    setSDFileName(name);
-    UDBDebug(name);
-    if (!SD.exists(name)) {
-      UDBDebug("File does not exists");
-      return "";
-    }
-    else {
-      sdcard = SD.open(name, FILE_READ);
-      size_t filesize = sdcard.size();
-      //Serial.println(filesize);
-      sdcard.seek(filesize-2);
-
-          bool keepLooping = true;
-          while(keepLooping) {
-              char ch;
-              ch = sdcard.read();  // Get current byte's data
-              Serial.println(ch);
-
-              if(ch == -1) {             // If the data was at or before the 0th byte
-                  sdcard.seek(0);                       // The first line is the last line
-                  keepLooping = false;                // So stop there
-              }
-              else if(ch == '\n') {                   // If the data was a newline
-                  keepLooping = false;                // Stop at the current position.
-              }
-              else {                                  // If the data was neither a newline nor at the 0 byte
-                  sdcard.seek(sdcard.position()-2);        // Move to the front of that data, then to the front of the data before it
-                  //Serial.print("new: ");Serial.println(sdcard.position());
-              }
-          }
-
-          String lastLine;            
-          lastLine = sdcard.readStringUntil('\n');                      // Read the current line
-
-          sdcard.close();
-          return(lastLine);
-    }    
-}
-
-void ReadAndParseLastLine() {
-  UDBDebug("read last values...");
-  String lastline = ReadLastLine();
-  UDBDebug(lastline);
-  if (lastline.charAt(0) == '#') {
-    String theVersion = lastline.substring(1,2);
-    int8_t theVersion_i = theVersion.toInt();
-    if (theVersion_i == StorageVersion) {
-      lastline = lastline.substring(3);
-      int16_t pos = lastline.indexOf(';');
-      if(pos >= 0) {    
-        lastline = lastline.substring(pos+1);
-        for (int16_t i=0; i<sensorcounter;i++) {  
-          lastline = sensor[i]->readLastLine(lastline);  // first ; already removed
-          UDBDebug(sensor[i]->serialize());
-          UDBDebug(lastline);
-        }
-      }
-    }
-  }  
+  */
 }
 
 void UDBDebug(String message) {
@@ -641,6 +418,15 @@ void UDBDebug(String message) {
   udp.endPacket();
 #endif  
 }
+
+void UDBDebug(const char * message) {
+#ifdef UDPDEBUG
+  udp.beginPacket(udpAddress, udpPort);
+  udp.write((const uint8_t*) message, strlen(message));
+  udp.endPacket();
+#endif  
+}
+
 
 void MQTT_Send(char const * topic, String value) {
     //UDBDebug("MQTT " +String(topic)+" "+value); 
