@@ -205,39 +205,9 @@ String Garage::serialize() {
     return result;
 }
 
-String Garage::WriteHeader() {
-    return ";Garage_Counter;Garage_Day";
-}
-
-String Garage::WriteDayHeader() {
-    return ";Garage_Day";
-}
-
-String Garage::WriteData() {
-  char buffer[100];
-  snprintf(buffer, 100, ";%d;%d", counter, counterday);
-  return buffer;    
-}
-
-String Garage::WriteDayData() {
+void Garage::RunDay() {
   MQTT_Send((char const *) "HomeServer/Garage/CounterDay", counterday); 
-  char buffer[100];
-  snprintf(buffer, 100, ";%d", counterday);
-  counterday=0;
-  return buffer;    
-}
-
-String Garage::readLastLine(String &lastline) {
-
-    // first ; already removed
-    int16_t index = 0;
-    float result = 0;
-    if (!get_token_Stored_Data(lastline, result)) return "";
-    counter = result;
-    if (!get_token_Stored_Data(lastline, result)) return "";
-    counterday = result;
-    return lastline;
-
+  counterday=0; 
 }
 
 void Garage::ToJson(JsonObject json){
@@ -245,3 +215,6 @@ void Garage::ToJson(JsonObject json){
     json["counterday"] = counterday;
 }
 
+void Garage::StatusToJson(JsonObject json){
+    ToJson(json);
+}

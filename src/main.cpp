@@ -115,7 +115,7 @@ void setup() {
 
     ArduinoOTA
     .onStart([]() {
-      jsonstatussend();
+      jsonstore();
       String type;
       if (ArduinoOTA.getCommand() == U_FLASH)
         type = "sketch";
@@ -148,6 +148,7 @@ void setup() {
  Serial.printf("vor MQTT");
     mqttclient.setServer(mqtt_server, 1883);
     mqttclient.setCallback(MQTT_callback);
+    mqttclient.setBufferSize(1024);
    if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       //mqttclient.publish("outTopic","hello world");
       UDBDebug("MQTT connect successful"); 
@@ -219,6 +220,7 @@ void loop() {
 
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
+    UDBDebug("Failed to obtain time");  
   }
   else
   {
@@ -226,24 +228,33 @@ void loop() {
       if (timeinfo.tm_hour != SDLog_Lasthour)  {       
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
-        //logSDFile(false);
         for (int16_t i=0; i<sensorcounter;i++) {  
           sensor[i]->runStunde();
         }
 
-        jsonstatussend();
+        jsonstore();
+
+          String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
+          memory += "  getMaxAllocHeap: ";
+          memory += String(ESP.getMaxAllocHeap());
+          UDBDebug(memory);
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
-        logDaySDFile();
+        if (timeinfo.tm_hour == 0)
+        {   for (int16_t i=0; i<sensorcounter;i++) {  
+              sensor[i]->RunDay();
+            }
+            jsonstatussend();
+        }
       }      
 
 
       if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
       {
         // time for restart !! one restart every week
-        jsonstatussend();
+        jsonstore();
         ESP.restart();
       }
       else time_last_restart_day = timeinfo.tm_wday;
@@ -329,7 +340,7 @@ void webtest() {
 }
 
 void jsonstatussend() {
-      const int capacity = 500; 
+      const int capacity = 1000; 
       StaticJsonDocument<capacity> doc;
 
     garage->ToJson(doc.createNestedObject("garage"));
@@ -343,73 +354,23 @@ void jsonstatussend() {
     MQTT_Send("HomeServer/Server/Data", output);
 }
 
-void logSDFile(bool headeronly) {
-  /*
-  char name[31];
-  String data;
+void jsonstore() {
+  
+      const int capacity = 1000; 
+      StaticJsonDocument<capacity> doc;
 
-  setSDFileName(name);
+    garage->ToJson(doc.createNestedObject("garage"));
+    wasser->ToJson(doc.createNestedObject("wasser"));
+    waage->ToJson(doc.createNestedObject("waage"));
+    strom->ToJson(doc.createNestedObject("strom"));
 
-  if (SD.exists(name)) {
-    sdcard = SD.open(name, FILE_APPEND);
-  }
-  else{
-    sdcard = SD.open(name, FILE_WRITE);
-    data = SDwriteHeader();
-    sdcard.println(data);  
-  }
+    String output;
+    serializeJson(doc, output);
 
-  if (headeronly) {
-    data = SDwriteHeader();
-    sdcard.println(data);  
-  }  
-  else 
-   {
-    char buffer[500];
-    snprintf(buffer, 500, "#;%04d-%02d-%02d_%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
-    data = buffer;
-
-    for (int16_t i=0; i<sensorcounter; i++) {
-      data = data + sensor[i]->WriteData();
-    }  
-    data += ';';
-    sdcard.println(data);
-  }  
-  sdcard.close();
-*/
-  String memory = "getFreeHeap: "+ESP.getFreeHeap();
-  memory += ("getMaxAllocHeap: "+ESP.getMaxAllocHeap());
-  UDBDebug(memory);
+    MQTT_Send("HomeServer/Server/Log", output);
+    
 }
 
-void logDaySDFile(void) {
-  /*
-  char name[31];
-  String data;
-
-  snprintf(name, 30, "/Year_%04d.txt", timeinfo.tm_year+1900);
-
-  if (SD.exists(name)) {
-    sdcard = SD.open(name, FILE_APPEND);
-  }
-  else{
-    sdcard = SD.open(name, FILE_WRITE);
-    data = SDDaywriteHeader();
-    sdcard.println(data);  
-  }
-
-  char buffer[100];
-  snprintf(buffer, 100, "#;%04d-%02d-%02d", timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday);
-  data = buffer;
-
-  for (int16_t i=0; i<sensorcounter; i++) {
-    data = data + sensor[i]->WriteDayData();
-  }  
-  data += ';';
-  sdcard.println(data);
-  sdcard.close();
-  */
-}
 
 void UDBDebug(String message) {
 #ifdef UDPDEBUG
@@ -429,10 +390,19 @@ void UDBDebug(const char * message) {
 
 
 void MQTT_Send(char const * topic, String value) {
-    //UDBDebug("MQTT " +String(topic)+" "+value); 
-    //Serial.println("MQTT " +String(topic)+" "+value) ;
+    String strtopic = topic;
     if (!mqttclient.publish(topic, value.c_str(), true)) {
        UDBDebug("MQTT error");  
+       if (!mqttclient.loop()) {
+           if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
+              UDBDebug("MQTT reconnect successful"); 
+              if (!mqttclient.publish(topic, value.c_str(), true)) {
+                  UDBDebug("MQTT error");  
+              }    
+           }  
+       else
+          UDBDebug("MQTT reconnect error");  
+       };
     };
 }
 

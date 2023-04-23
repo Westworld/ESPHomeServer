@@ -22,12 +22,9 @@ class Garage: public Sensor
         virtual bool HandleWebCall(String job, short strlen);
         virtual bool HandleMQTT(String message, short joblength, String value);
         virtual String serialize();
-        virtual String WriteHeader();
-        virtual String WriteData();   
-        virtual String WriteDayHeader();
-        virtual String WriteDayData();   
-        virtual String readLastLine(String &lastline);    
+        virtual void RunDay();   
         virtual void ToJson(JsonObject json); 
+        virtual void StatusToJson(JsonObject json);
 };
 
 #endif

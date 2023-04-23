@@ -39,6 +39,14 @@ void Wasser::ToJson(JsonObject json){
     json["counterday"] = counterday;
 }
 
+void Wasser::StatusToJson(JsonObject json){
+    ToJson(json);
+}
+
+void Wasser::RunDay() {
+  MQTT_Send((char const *) "HomeServer/Wasser/CounterDay", counterday); 
+  counterday=0; 
+}
 
 String Wasser::serialize() {
     String result="";
@@ -53,34 +61,3 @@ String Wasser::serialize() {
     return result;
 }
 
-String Wasser::WriteHeader() {
-    return ";Wasser_Counter;Wasser_Day";
-}
-
-String Wasser::WriteDayHeader() {
-    return ";Wasser_Day";
-}
-
-String Wasser::WriteData() {
-  char buffer[100];
-  snprintf(buffer, 100, ";%ld;%ld", counter, counterday);
-  return String(buffer);    
-}
-
-String Wasser::WriteDayData() {
-  char buffer[100];
-  snprintf(buffer, 100, ";%d", counterday);
-  counterday = 0;
-  return String(buffer);    
-}
-
-String Wasser::readLastLine(String &lastline) {
-    // first ; already removed
-    int16_t index = 0;
-    float result = 0;
-    if (!get_token_Stored_Data(lastline, result)) return "";
-    counterday = result;
- UDBDebug("Read Last Line Wasser: "+String(counterday));   
-    return lastline;
-
-}

@@ -24,3 +24,4 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length);
 void EMail_Send(String message);
 void smtpCallback(SMTP_Status status);
 void jsonstatussend();
+void jsonstore();

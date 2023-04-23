@@ -25,25 +25,8 @@ bool Sensor::HandleMQTT(String message, short joblength, String value) {
     return false;
 }
 
-String Sensor::WriteHeader() {
-    return ";Sensor";
-}
+void Sensor::RunDay() {
 
-String Sensor::WriteDayHeader() {
-    return "";
-}
-
-String Sensor::WriteData() {
-    return ";Sensor";
-}
-
-
-String Sensor::WriteDayData() {
-    return "";
-}
-
-String Sensor::readLastLine(String &lastline) {
-    return lastline;
 }
 
 void Sensor::ToJson(JsonObject json) {

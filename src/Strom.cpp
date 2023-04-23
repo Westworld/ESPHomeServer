@@ -20,6 +20,10 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
   const char IsWallboxPsm[] =      "HomeServer/Wallbox/psm";
   const char IsWallboxNrg[] =      "HomeServer/Wallbox/nrg";
 
+  if (message.startsWith("HomeServer/Strom/")) {
+    UDBDebug("erhalten: "+message+": "+value);
+  }
+
   switch (joblength) {
     case sizeof(IsKauf): 
         if (message == IsKauf) {
@@ -214,6 +218,10 @@ String Strom::serialize() {
     return result;
 }
 
+void Strom::StatusToJson(JsonObject json){
+    ToJson(json); 
+}
+
 
 void Strom::ToJson(JsonObject json){
     json["StromKauf"] = round2(StromKauf);
@@ -228,38 +236,7 @@ void Strom::ToJson(JsonObject json){
     json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
 }
 
-
-String Strom::WriteHeader() {
-    return ";StromKauf;StromVerkauf;TagStromKauf;TagStromVerkauf;\
-TagEinzelVerbrauch;TagBatProduktion;TagBatVerbrauch;TagProduktion";
-}
-
-String Strom::WriteDayHeader() {
-    return ";StromKauf;StromVerkauf;TagStromKauf;TagStromVerkauf;\
-TagEinzelVerbrauch;TagBatProduktion;TagBatVerbrauch;TagProduktion";
-}
-
-String Strom::WriteData() {
-  char buffer[100];
-  float _CurStundeEinzelVerbrauch =0;
-  if (StundeEinzelVerbrauchCounter != 0)
-    _CurStundeEinzelVerbrauch = CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter;
-  float _CurStundeBatVerbrauch=0;
-  if (CurStundeBatCounter != 0)
-    _CurStundeBatVerbrauch = CurStundeBatVerbrauch/CurStundeBatCounter;
-  float _CurStundeBatProduktion=0;
-  if (StundeBatProdCounter != 0)
-    _CurStundeBatProduktion = CurStundeBatProduktion/StundeBatProdCounter;
-
-  snprintf(buffer, 100, ";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.0f;%.0f;%0.f;%.0f;%.0f;%0.f", StromKauf, StromVerkauf,\
-TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch, TagProduktion);
-  return String(buffer);    
-}
-
-String Strom::WriteDayData() {
-  char buffer[100];
-  snprintf(buffer, 100, ";%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.0f;%.0f;%0.f;%.f", StromKauf, StromVerkauf, \
-TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauch,TagProduktion);
+void Strom::runDay() {
   TagStromKaufStart=StromKauf;
   TagStromVerkaufStart=StromVerkauf;
   TagStromKauf=0;
@@ -273,22 +250,5 @@ TagStromKauf, TagStromVerkauf,TagEinzelVerbrauch,TagBatProduktion,TagBatVerbrauc
   MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", TagProduktion); 
   MQTT_Send((char const *) "HomeServer/Strom/TagBatProduktion", TagBatProduktion); 
   MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
-  MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", TagBatVerbrauch);
-  return String(buffer);    
-}
-
-String Strom::readLastLine(String &lastline) {
-    // first ; already removed
-    int16_t index = 0;
-    float result = 0;
-    if (!get_token_Stored_Data(lastline, StromKauf)) return "";
-    if (!get_token_Stored_Data(lastline, StromVerkauf)) return "";
-    if (!get_token_Stored_Data(lastline, TagStromKaufStart)) return "";
-    if (!get_token_Stored_Data(lastline, TagStromVerkaufStart)) return "";
-    if (!get_token_Stored_Data(lastline, TagStromKauf)) return "";
-    if (!get_token_Stored_Data(lastline, TagStromVerkauf)) return "";
-    if (!get_token_Stored_Data(lastline, Einzelverbrauch)) return "";
-    if (!get_token_Stored_Data(lastline, BatterieProduktion)) return "";
-    if (!get_token_Stored_Data(lastline, BatterieVerbrauch)) return "";
-    return lastline;
+  MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", TagBatVerbrauch); 
 }

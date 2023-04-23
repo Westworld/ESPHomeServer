@@ -15,15 +15,11 @@ class Waage: public Sensor
     public:
         Waage();
         enum  wer { warBuddy=0, warMika, warMatti, warTimmi, unbekannt };
-        virtual String serialize();
-        virtual String WriteHeader();
-        virtual String WriteData();  
+        virtual String serialize(); 
         virtual void run(int32_t zeit);
         virtual bool HandleMQTT(String message, short joblength, String value);
-        virtual String WriteDayHeader();
-        virtual String WriteDayData();  
-        virtual String readLastLine(String &lastline); 
         virtual void ToJson(JsonObject json);     
+        virtual void StatusToJson(JsonObject json);
 };
 
 #endif
