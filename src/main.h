@@ -25,3 +25,4 @@ void EMail_Send(String message);
 void smtpCallback(SMTP_Status status);
 void jsonstatussend();
 void jsonstore();
+void jsonreceive(String value);

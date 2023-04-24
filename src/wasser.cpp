@@ -61,3 +61,10 @@ String Wasser::serialize() {
     return result;
 }
 
+void Wasser::JsonReceive(JsonObject data) {
+    if (counter == 0)
+        counter = data["counter"]; // 13805
+    if (counterday == 0) 
+        counterday = data["counterday"]; // 2
+
+}

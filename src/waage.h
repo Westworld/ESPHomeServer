@@ -20,6 +20,7 @@ class Waage: public Sensor
         virtual bool HandleMQTT(String message, short joblength, String value);
         virtual void ToJson(JsonObject json);     
         virtual void StatusToJson(JsonObject json);
+        virtual void JsonReceive(JsonObject data);
 };
 
 #endif

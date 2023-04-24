@@ -6,7 +6,7 @@ extern ESP32WebServer server;
 
 
 bool Strom::HandleMQTT(String message, short joblength, String value) {
-  const char IsKauf[] =          "  HomeServer/Strom/Kauf";
+  const char IsKauf[] =            "HomeServer/Strom/Kauf";
   const char IsVerkauf[] =         "HomeServer/Strom/Verkauf";
   const char IsBatProd[] =         "HomeServer/Batterie/Production_W";
   const char IsBatVerbrauch[] =    "HomeServer/Batterie/Consumption_W";
@@ -20,15 +20,17 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
   const char IsWallboxPsm[] =      "HomeServer/Wallbox/psm";
   const char IsWallboxNrg[] =      "HomeServer/Wallbox/nrg";
 
+/*
   if (message.startsWith("HomeServer/Strom/")) {
     UDBDebug("erhalten: "+message+": "+value);
   }
+*/
 
   switch (joblength) {
     case sizeof(IsKauf): 
         if (message == IsKauf) {
             float curValue = value.toFloat(); 
-            UDBDebug("StromKauf: "+String(curValue));
+            //UDBDebug("StromKauf: "+String(curValue));
             if (StromKauf != 0) {
                 curStromKauf = (curValue - StromKauf*1000);
                 StromKauf = curValue;
@@ -66,10 +68,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         if (message == IsEinzelVerbrauch) {
             Einzelverbrauch = value.toFloat();
             CurStundeEinzelVerbrauch += Einzelverbrauch;
-            StundeEinzelVerbrauchCounter++;
-            TagEinzelVerbrauch += ((CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter)/60);
-            MQTT_Send((char const *) "HomeServer/Strom/TagEinzelverbrauch", (long)(TagEinzelVerbrauch)); 
-            StundeEinzelVerbrauchCounter++;
+            StundeEinzelVerbrauchCounter++; 
             return true;
         }
         break;
@@ -79,8 +78,6 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             float Prod = value.toFloat();
             CurStundeProduktion += Prod;
             StundeProduktionCounter++;
-            TagProduktion += ((CurStundeProduktion/StundeProduktionCounter)/60);
-            MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion)); 
             if (ProduktionCounter>14) {
                 for (short i=0;i<14;i++) {
                     ProduktionAvg[i] = ProduktionAvg[i+1];
@@ -103,8 +100,6 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             BatterieVerbrauch = value.toFloat();
             CurStundeBatVerbrauch += BatterieVerbrauch;
             CurStundeBatCounter++;
-            TagBatVerbrauch += ((CurStundeBatVerbrauch/CurStundeBatCounter)/60);
-            MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", (long)(TagBatVerbrauch)); 
             return true;
         }
         break;
@@ -114,7 +109,6 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             BatterieProduktion = value.toFloat();
             CurStundeBatProduktion += BatterieProduktion;
             StundeBatProdCounter++;
-            TagBatProduktion += ((CurStundeBatProduktion/StundeBatProdCounter)/60);
             MQTT_Send((char const *) "HomeServer/Strom/TagBatProduktion", (long)(TagBatProduktion)); 
             return true;
         }
@@ -159,6 +153,14 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
 
 void Strom::runStunde() {
     // nachdem Hour log geschrieben
+    TagBatProduktion += ((CurStundeBatProduktion/StundeBatProdCounter)/60);
+    TagBatVerbrauch += ((CurStundeBatVerbrauch/CurStundeBatCounter)/60);
+    MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", (long)(TagBatVerbrauch)); 
+    TagProduktion += ((CurStundeProduktion/StundeProduktionCounter)/60);
+    MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion));
+    TagEinzelVerbrauch += ((CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter)/60);
+    MQTT_Send((char const *) "HomeServer/Strom/TagEinzelverbrauch", (long)(TagEinzelVerbrauch));    
+
     CurStundeEinzelVerbrauch= CurStundeBatProduktion= CurStundeBatVerbrauch = 0;
     StundeEinzelVerbrauchCounter= StundeBatProdCounter= CurStundeBatCounter=0; 
 }
@@ -219,7 +221,13 @@ String Strom::serialize() {
 }
 
 void Strom::StatusToJson(JsonObject json){
-    ToJson(json); 
+    json["StromKauf"] = round2(StromKauf);
+    json["StromVerkauf"] = round2(StromVerkauf);
+    json["TagStromKauf"] = round2(TagStromKauf);
+    json["TagStromVerkauf"] = round2(TagStromVerkauf);    
+    json["TagBatProduktion"] = round2(TagBatProduktion);
+    json["TagBatVerbrauch"] = round2(TagBatVerbrauch);  
+    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
 }
 
 
@@ -233,7 +241,30 @@ void Strom::ToJson(JsonObject json){
     json["BatterieVerbrauch"] = round2(BatterieVerbrauch);     
     json["TagBatProduktion"] = round2(TagBatProduktion);
     json["TagBatVerbrauch"] = round2(TagBatVerbrauch);  
-    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
+    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);        
+    }
+
+void Strom::JsonReceive(JsonObject strom) {
+    if(StromKauf == 0)
+        StromKauf = strom["StromKauf"]; // 12752.22
+    if (StromVerkauf == 0)
+        StromVerkauf = strom["StromVerkauf"]; // 24101.43
+    if (TagStromKauf == 0)
+        TagStromKauf = strom["TagStromKauf"]; // 19.53
+    if (TagStromVerkauf == 0)
+        TagStromVerkauf = strom["TagStromVerkauf"]; // 60.55
+    if (Einzelverbrauch == 0)
+        Einzelverbrauch = strom["Einzelverbrauch"]; // 411
+    if (BatterieProduktion == 0)
+        BatterieProduktion = strom["BatterieProduktion"]; // 384
+    if (BatterieVerbrauch == 0)
+        BatterieVerbrauch = strom["BatterieVerbrauch"]; // 328
+    if (TagBatProduktion == 0)
+        TagBatProduktion = strom["TagBatProduktion"]; // 1544.32
+    if (TagBatVerbrauch == 0)
+        TagBatVerbrauch = strom["TagBatVerbrauch"]; // 1416.45
+    if (TagEinzelVerbrauch == 0)
+        TagEinzelVerbrauch = strom["TagEinzelVerbrauch"]; // 673.44   
 }
 
 void Strom::runDay() {

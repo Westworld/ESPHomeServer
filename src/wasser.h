@@ -18,6 +18,7 @@ class Wasser: public Sensor
         virtual void RunDay();   
         virtual void ToJson(JsonObject json); 
         virtual void StatusToJson(JsonObject json);
+        virtual void JsonReceive(JsonObject data);
 };
 
 #endif

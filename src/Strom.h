@@ -29,7 +29,8 @@ class Strom: public Sensor
         virtual void ToJson(JsonObject json); 
         virtual void StatusToJson(JsonObject json); 
         virtual void runStunde(); 
-        virtual void runDay();        
+        virtual void runDay();    
+        virtual void JsonReceive(JsonObject data);    
 };
 
 #endif

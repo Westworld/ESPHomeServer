@@ -114,3 +114,20 @@ void Waage::StatusToJson(JsonObject json){
     ToJson(json);
 }
 
+void Waage::JsonReceive(JsonObject data) {
+    if (Buddy == 0)
+        Buddy = data["Buddy"]; // 6.69
+    if (Mika == 0)
+        Mika = data["Mika"]; // 6.72
+    if (Matti == 0)
+        Matti = data["Matti"]; // 7.18
+    if (Timmi == 0)
+        Timmi = data["Timmi"]; // 8.32
+    if (tag_Buddy == 0)
+        tag_Buddy = data["tag_Buddy"]; // 6.69
+    if (tag_Mika == 0)
+        tag_Mika = data["tag_Mika"]; // 6.7
+    if (tag_Matti == 0)
+        tag_Matti = data["tag_Matti"]; // 7.33
+
+}

@@ -76,6 +76,8 @@ Wasser * wasser;
 Garage * garage;
 Strom * strom;
 
+#define Jsonsize 1024
+
 void setTimeZone(String TimeZone) {
   struct tm local;
   configTzTime(TimeZone.c_str(), NTP_SERVER); // ESP32 Systemzeit mit NTP Synchronisieren
@@ -225,28 +227,30 @@ void loop() {
   else
   {
     //  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
-      if (timeinfo.tm_hour != SDLog_Lasthour)  {       
+      if (timeinfo.tm_hour != SDLog_Lasthour)  {     
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
-        for (int16_t i=0; i<sensorcounter;i++) {  
-          sensor[i]->runStunde();
-        }
 
-        jsonstore();
-
-          String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
-          memory += "  getMaxAllocHeap: ";
-          memory += String(ESP.getMaxAllocHeap());
-          UDBDebug(memory);
+        if (timeinfo.tm_min <= 1) {
+            for (int16_t i=0; i<sensorcounter;i++) {  
+              sensor[i]->runStunde();
+            }
+            jsonstore();
+            
+              String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
+              memory += "  getMaxAllocHeap: ";
+              memory += String(ESP.getMaxAllocHeap());
+              UDBDebug(memory);
+        }    
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
         if (timeinfo.tm_hour == 0)
-        {   for (int16_t i=0; i<sensorcounter;i++) {  
+        {   jsonstatussend();
+            for (int16_t i=0; i<sensorcounter;i++) {  
               sensor[i]->RunDay();
-            }
-            jsonstatussend();
+            } 
         }
       }      
 
@@ -340,13 +344,12 @@ void webtest() {
 }
 
 void jsonstatussend() {
-      const int capacity = 1000; 
-      StaticJsonDocument<capacity> doc;
+      StaticJsonDocument<Jsonsize> doc;
 
-    garage->ToJson(doc.createNestedObject("garage"));
-    wasser->ToJson(doc.createNestedObject("wasser"));
-    waage->ToJson(doc.createNestedObject("waage"));
-    strom->ToJson(doc.createNestedObject("strom"));
+    garage->StatusToJson(doc.createNestedObject("garage"));
+    wasser->StatusToJson(doc.createNestedObject("wasser"));
+    waage->StatusToJson(doc.createNestedObject("waage"));
+    strom->StatusToJson(doc.createNestedObject("strom"));
 
     String output;
     serializeJson(doc, output);
@@ -355,9 +358,7 @@ void jsonstatussend() {
 }
 
 void jsonstore() {
-  
-      const int capacity = 1000; 
-      StaticJsonDocument<capacity> doc;
+      StaticJsonDocument<Jsonsize> doc;
 
     garage->ToJson(doc.createNestedObject("garage"));
     wasser->ToJson(doc.createNestedObject("wasser"));
@@ -369,6 +370,25 @@ void jsonstore() {
 
     MQTT_Send("HomeServer/Server/Log", output);
     
+}
+
+void jsonreceive(String value) {
+    StaticJsonDocument<Jsonsize> doc;
+
+    DeserializationError error = deserializeJson(doc, value);
+
+    if (error) {
+      String errortext = "deserializeJson() failed: ";
+      errortext += error.c_str();
+      UDBDebug(errortext);
+      return;
+    }
+
+    garage->JsonReceive(doc["garage"]);
+    wasser->JsonReceive(doc["wasser"]); 
+    waage->JsonReceive(doc["waage"]);
+    strom->JsonReceive(doc["strom"]);
+
 }
 
 
@@ -432,6 +452,13 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
     payload[length] = '\0';
     String value = String((char *) payload);
     //UDBDebug("### "+message +" - "+value);
+
+    if (message == "HomeServer/Server/Log") {
+      jsonreceive(value);
+      const char *TOPIC = "HomeServer/Server/Log";
+      mqttclient.unsubscribe(TOPIC);
+      return;
+    }
     
     for (int16_t i=0; i<sensorcounter;i++) {  
         if (sensor[i]->HandleMQTT(message, joblength, value))
