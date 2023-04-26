@@ -54,6 +54,7 @@ const int httpPort = 80;
 const char* mqtt_server = "192.168.0.46";
 // MQTT_User and MQTT_Pass defined via platform.ini, external file, not uploaded to github
 PubSubClient mqttclient(wifiClient);
+bool startuprestore = false; // to receive loaded data just once
 
 struct tm timeinfo;
 char SDLog_Lasthour = -1;
@@ -126,6 +127,7 @@ void setup() {
 
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
       Serial.println("Start updating " + type);
+      UDBDebug("Start update");
     })
     .onEnd([]() {
       Serial.println("\nEnd");
@@ -235,8 +237,8 @@ void loop() {
             for (int16_t i=0; i<sensorcounter;i++) {  
               sensor[i]->runStunde();
             }
-            jsonstore();
-            
+            jsonstore();  // log, hourly
+
               String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
               memory += "  getMaxAllocHeap: ";
               memory += String(ESP.getMaxAllocHeap());
@@ -247,7 +249,8 @@ void loop() {
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
         if (timeinfo.tm_hour == 0)
-        {   jsonstatussend();
+        {   jsonstatussend(); // data, daily
+            UDBDebug("daily report");
             for (int16_t i=0; i<sensorcounter;i++) {  
               sensor[i]->RunDay();
             } 
@@ -259,6 +262,7 @@ void loop() {
       {
         // time for restart !! one restart every week
         jsonstore();
+        UDBDebug("weekly restart");
         ESP.restart();
       }
       else time_last_restart_day = timeinfo.tm_wday;
@@ -358,6 +362,7 @@ void jsonstatussend() {
 }
 
 void jsonstore() {
+     // backup hourly, reload on startup
       StaticJsonDocument<Jsonsize> doc;
 
     garage->ToJson(doc.createNestedObject("garage"));
@@ -373,6 +378,7 @@ void jsonstore() {
 }
 
 void jsonreceive(String value) {
+  // reads HomeServer/Server/Log
     StaticJsonDocument<Jsonsize> doc;
 
     DeserializationError error = deserializeJson(doc, value);
@@ -452,18 +458,23 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
     payload[length] = '\0';
     String value = String((char *) payload);
     //UDBDebug("### "+message +" - "+value);
-
-    if (message == "HomeServer/Server/Log") {
-      jsonreceive(value);
-      const char *TOPIC = "HomeServer/Server/Log";
-      mqttclient.unsubscribe(TOPIC);
-      return;
-    }
     
+    
+    if (!startuprestore) {
+      if (message == "HomeServer/Server/Log") {
+            startuprestore = true;
+            jsonreceive(value);
+            //const char *TOPIC = "HomeServer/Server/Log";
+            //mqttclient.unsubscribe(TOPIC);
+            return;
+        }  
+    }
+    else {
     for (int16_t i=0; i<sensorcounter;i++) {  
         if (sensor[i]->HandleMQTT(message, joblength, value))
           return;
       }
+    }  
 
 }
 
