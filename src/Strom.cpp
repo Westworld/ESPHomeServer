@@ -154,19 +154,20 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
 void Strom::runStunde() {
     // nachdem Hour log geschrieben
     if (StundeBatProdCounter != 0)
-        TagBatProduktion += ((CurStundeBatProduktion/StundeBatProdCounter)/60);
+        TagBatProduktion += ((CurStundeBatProduktion/StundeBatProdCounter)/60000);
     if (CurStundeBatCounter != 0) {
-        TagBatVerbrauch += ((CurStundeBatVerbrauch/CurStundeBatCounter)/60);
+        TagBatVerbrauch += ((CurStundeBatVerbrauch/CurStundeBatCounter)/60000);
         MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", (long)(TagBatVerbrauch)); 
     }
     if (StundeProduktionCounter != 0) {
-        TagProduktion += ((CurStundeProduktion/StundeProduktionCounter)/60);
+        TagProduktion += ((CurStundeProduktion/StundeProduktionCounter)/60000);
         MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion));
     }
     if (StundeEinzelVerbrauchCounter != 0) {
-        TagEinzelVerbrauch += ((CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter)/60);
+        TagEinzelVerbrauch += ((CurStundeEinzelVerbrauch/StundeEinzelVerbrauchCounter)/60000);
         MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", (long)(TagEinzelVerbrauch)); 
     }   
+    MQTT_Send((char const *) "HomeServer/Wallbox/TagEto", (long)(WallboxEto-WallboxEtoStart)); 
 
     CurStundeEinzelVerbrauch= CurStundeBatProduktion= CurStundeBatVerbrauch = 0;
     StundeEinzelVerbrauchCounter= StundeBatProdCounter= CurStundeBatCounter=0; 
@@ -223,6 +224,8 @@ String Strom::serialize() {
     result += WallboxPsm;
     result += ", WallboxNrg = ";
     result += WallboxNrg;
+    result += ", WallboxEtoStart = ";
+    result += WallboxEtoStart;
     result += "\nLastUpdate = ";
     result += lastUpdated;
     result += "\n";
@@ -238,6 +241,7 @@ void Strom::StatusToJson(JsonObject json){
     json["TagBatProduktion"] = round2(TagBatProduktion);
     json["TagBatVerbrauch"] = round2(TagBatVerbrauch);  
     json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
+    json["TagWallBoxEto"] == WallboxEto-WallboxEtoStart;
 }
 
 
@@ -252,7 +256,8 @@ void Strom::ToJson(JsonObject json){
     json["BatterieVerbrauch"] = round2(BatterieVerbrauch);     
     json["TagBatProduktion"] = round2(TagBatProduktion);
     json["TagBatVerbrauch"] = round2(TagBatVerbrauch);  
-    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);        
+    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);   
+    json["WallboxEtoStart"] = WallboxEtoStart;     
     }
 
 void Strom::JsonReceive(JsonObject strom) {
@@ -276,6 +281,8 @@ void Strom::JsonReceive(JsonObject strom) {
         TagBatVerbrauch = strom["TagBatVerbrauch"]; // 1416.45
     if (TagEinzelVerbrauch == 0)
         TagEinzelVerbrauch = strom["TagEinzelVerbrauch"]; // 673.44   
+    if (WallboxEtoStart == 0)
+        WallboxEtoStart = strom["WallboxEtoStart"];
 }
 
 void Strom::runDay() {
@@ -287,10 +294,12 @@ void Strom::runDay() {
   TagEinzelVerbrauch=0;
   TagBatProduktion=0;
   TagBatVerbrauch=0;
+  WallboxEtoStart = WallboxEto;
   MQTT_Send((char const *) "HomeServer/Strom/TagVerkauf", TagStromVerkauf); 
   MQTT_Send((char const *) "HomeServer/Strom/TagKauf", TagStromKauf); 
   MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", TagProduktion); 
   MQTT_Send((char const *) "HomeServer/Strom/TagBatProduktion", TagBatProduktion); 
   MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Strom/TagBatVerbrauch", TagBatVerbrauch); 
+  MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", 0L); 
 }

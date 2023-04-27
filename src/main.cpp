@@ -324,8 +324,22 @@ void handleStrom() {
 
 void webdebug() {
   String message= "";
-  for (int16_t i=0; i<sensorcounter; i++) {
-    message = message + sensor[i]->serialize() + "\n";
+
+  if (server.hasArg("Job"))  {
+    String job = server.arg("Job");
+    if (job == "resetday") {
+      strom->runDay();
+      message="resetday";
+    }
+    if (job == "resetstunde") {
+      strom->runStunde();
+      message="resetstunde";
+    }
+  }
+  else {  
+      for (int16_t i=0; i<sensorcounter; i++) {
+        message = message + sensor[i]->serialize() + "\n";
+      }
   }
 
   server.send(200, "text/plain", message);
