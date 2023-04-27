@@ -340,6 +340,7 @@ void webdebug() {
       for (int16_t i=0; i<sensorcounter; i++) {
         message = message + sensor[i]->serialize() + "\n";
       }
+      message = message + "\ncurtime: "+millis();
   }
 
   server.send(200, "text/plain", message);

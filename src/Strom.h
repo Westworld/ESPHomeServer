@@ -11,13 +11,12 @@ class Strom: public Sensor
         float curStromKauf=0, curStromVerkauf=0;
         float TagStromKaufStart=0, TagStromVerkaufStart=0;
         float TagStromKauf=0, TagStromVerkauf=0;
-        float Einzelverbrauch=0, BatterieProduktion = 0, BatterieVerbrauch = 0;
-        float CurStundeEinzelVerbrauch=0, CurStundeBatProduktion=0, CurStundeBatVerbrauch = 0;
-        float TagEinzelVerbrauch=0, TagBatProduktion=0, TagBatVerbrauch=0;
-        int8_t StundeEinzelVerbrauchCounter=0, StundeBatProdCounter=0, CurStundeBatCounter=0; 
+        float Einzelverbrauch=0, BatterieVerbrauch = 0, GesamtVerbrauch=0;
+        float TagEinzelVerbrauch=0, TagGesamtVerbrauch=0, LastBatVerbrauch=0;
+        long LastEinzelVerbrauch=0, LastGesamtVerbrauch=0, LastProduktion=0;
         float ProduktionAvg[15];
-        int8_t ProduktionCounter=0, StundeProduktionCounter=0;
-        float CurStundeProduktion=0, TagProduktion=0;
+        int8_t ProduktionCounter = 0;
+        float TagProduktion=0;
         int8_t WallboxCar=0, WallboxAmp=0, WallboxPsm=0;
         int32_t WallboxEto=0, WallboxNrg=0, WallboxEtoStart=0;
         bool WallboxAlw=false;
