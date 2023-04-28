@@ -249,11 +249,11 @@ void loop() {
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
         if (timeinfo.tm_hour == 0)
-        {   jsonstatussend(); // data, daily
-            UDBDebug("daily report");
+        {   jsonstatussend(); // data, daily, number from previous day
             for (int16_t i=0; i<sensorcounter;i++) {  
               sensor[i]->RunDay();
             } 
+            UDBDebug("daily report");
         }
       }      
 

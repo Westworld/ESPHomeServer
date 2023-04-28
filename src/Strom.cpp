@@ -162,7 +162,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
 void Strom::runStunde() {
     // nachdem Hour log geschrieben
  
-    MQTT_Send((char const *) "HomeServer/Wallbox/TagEto", (long)(WallboxEto-WallboxEtoStart)); 
+    MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", (long)(WallboxEto-WallboxEtoStart)); 
 }
 
 
@@ -260,6 +260,7 @@ void Strom::JsonReceive(JsonObject strom) {
 }
 
 void Strom::runDay() {
+  UDBDebug("daily report_strom start");
   TagStromKaufStart=StromKauf;
   TagStromVerkaufStart=StromVerkauf;
   TagStromKauf=0;
@@ -274,4 +275,5 @@ void Strom::runDay() {
   MQTT_Send((char const *) "HomeServer/Strom/TagGesamtVerbrauch", TagGesamtVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", 0L); 
+  UDBDebug("daily report_strom ende");
 }

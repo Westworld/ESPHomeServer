@@ -4,6 +4,8 @@
 extern struct tm timeinfo;
 extern ESP32WebServer server;
 
+extern void HTTP_Send(String url);
+
 bool Garage::HandleWebCall(String job, short strlen) {
     if (job == "Garage") {
         long counter = 0;
@@ -36,6 +38,8 @@ bool Garage::HandleMQTT(String message, short joblength, String value) {
     case sizeof(IsLeft):
         if (message == IsLeft) {
             UDBDebug("open BMW");
+            String url = "http://192.168.0.63/garageopen.php";
+            HTTP_Send(url);
             EMail_Send("HomeKit Open VW Garage"); 
             return true;
         }
@@ -43,6 +47,9 @@ bool Garage::HandleMQTT(String message, short joblength, String value) {
     case sizeof(IsRight):
         if (message == IsRight) {
             UDBDebug("open Mini");
+            String url = "http://192.168.0.63/garageminiopen.php";
+            HTTP_Send(url);
+            EMail_Send("HomeKit Open Mini Garage"); 
             return true;
         }
         break;
