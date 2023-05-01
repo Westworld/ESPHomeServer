@@ -80,9 +80,16 @@ Strom * strom;
 #define Jsonsize 1024
 
 void setTimeZone(String TimeZone) {
-  struct tm local;
   configTzTime(TimeZone.c_str(), NTP_SERVER); // ESP32 Systemzeit mit NTP Synchronisieren
-  getLocalTime(&local, 10000);      // Versuche 10 s zu Synchronisieren
+  // aufruf für 10 Sekunden, bis Zeit aktualisiert.
+  // verlangsamt booten, ja
+
+  for (short i=0;i<100;i++) {
+      getLocalTime(&timeinfo, 10000);      // Versuche 10 s zu Synchronisieren
+       delay(100);
+  } 
+     UDBDebug("setTimeZone-Zeit: "+String(timeinfo.tm_hour)+":"+(timeinfo.tm_min));  
+
   #ifdef webdebug  
     Serial.println("TimeZone: "+TimeZone);
     Serial.println(&local, "%A, %B %d %Y %H:%M:%S");
@@ -146,7 +153,7 @@ void setup() {
 
   ArduinoOTA.begin();
 
-  setTimeZone(MY_TZ);
+  setTimeZone(MY_TZ);  
 
  // MQTT
  Serial.printf("vor MQTT");
@@ -167,11 +174,6 @@ void setup() {
        UDBDebug("MQTT connect error");  
 
    Serial.printf("nach MQTT2");   
-
-  while (!getLocalTime(&timeinfo)) {
-    UDBDebug("error getLocalTime"); 
-    delay(2000);
-  }
 
   SDLog_Lastday = timeinfo.tm_mday;
 
@@ -204,7 +206,9 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED)
     WifiConnect();
   ArduinoOTA.handle();
+  
   server.handleClient();
+  
   if (!mqttclient.loop()) {
     if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       UDBDebug("MQTT reconnect successful"); 
@@ -212,24 +216,27 @@ void loop() {
     else
        UDBDebug("MQTT reconnect error");  
   };
-
+  
   static int32_t zeit=0, altzeit=0, gesamtzeit=0;
   static int32_t zeitcounter=0;
 
   zeit = millis();
-
+/*
   for (int16_t i=0; i<sensorcounter;i++) {  
     sensor[i]->Run(zeit);
   }
+*/
 
-  if(!getLocalTime(&timeinfo)){
+  if(!getLocalTime(&timeinfo, 10000)){
     Serial.println("Failed to obtain time");
     UDBDebug("Failed to obtain time");  
   }
   else
-  {
-    //  if ((timeinfo.tm_hour != SDLog_Lasthour) | ((timeinfo.tm_min != SDLog_Lastmin) & ((timeinfo.tm_min%5)==1))) {
-      if (timeinfo.tm_hour != SDLog_Lasthour)  {     
+  { 
+    //UDBDebug("Zeit: "+String(timeinfo.tm_hour)+":"+(timeinfo.tm_min));  
+    
+      if (timeinfo.tm_hour != SDLog_Lasthour)  {  
+         
         SDLog_Lasthour = timeinfo.tm_hour;
         SDLog_Lastmin = timeinfo.tm_min;
 
@@ -248,13 +255,13 @@ void loop() {
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
-        if (timeinfo.tm_hour == 0)
-        {   jsonstatussend(); // data, daily, number from previous day
-            for (int16_t i=0; i<sensorcounter;i++) {  
-              sensor[i]->RunDay();
-            } 
-            UDBDebug("daily report");
-        }
+        UDBDebug("start daily report");
+        jsonstatussend(); // data, daily, number from previous day
+        UDBDebug("mid daily report");
+        for (int16_t i=0; i<sensorcounter;i++) {  
+          sensor[i]->runDay();
+        } 
+        UDBDebug("end daily report");
       }      
 
 
@@ -405,11 +412,16 @@ void jsonreceive(String value) {
       return;
     }
 
-    garage->JsonReceive(doc["garage"]);
-    wasser->JsonReceive(doc["wasser"]); 
-    waage->JsonReceive(doc["waage"]);
-    strom->JsonReceive(doc["strom"]);
+UDBDebug("jsonreceive 1");
 
+    garage->JsonReceive(doc["garage"]);
+UDBDebug("jsonreceive 1b");
+    wasser->JsonReceive(doc["wasser"]); 
+    UDBDebug("jsonreceive 1c");
+    waage->JsonReceive(doc["waage"]);
+    UDBDebug("jsonreceive 2");
+    strom->JsonReceive(doc["strom"]);
+UDBDebug("jsonreceive 3");
 }
 
 
@@ -472,19 +484,20 @@ void MQTT_callback(char* topic, byte* payload, unsigned int length) {
     int8_t joblength = message.length()+1;// 0 char
     payload[length] = '\0';
     String value = String((char *) payload);
-    //UDBDebug("### "+message +" - "+value);
-    
-    
+
     if (!startuprestore) {
       if (message == "HomeServer/Server/Log") {
+        UDBDebug("Startmessage");
             startuprestore = true;
             jsonreceive(value);
             //const char *TOPIC = "HomeServer/Server/Log";
             //mqttclient.unsubscribe(TOPIC);
+            UDBDebug("Startmessage ende");
             return;
         }  
     }
     else {
+     // UDBDebug("### "+message +" - "+value);
     for (int16_t i=0; i<sensorcounter;i++) {  
         if (sensor[i]->HandleMQTT(message, joblength, value))
           return;

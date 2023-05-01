@@ -82,8 +82,10 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         if (message == IsProduktion) {
             float Prod = value.toFloat();
             float zeit = (curmillis - LastProduktion) / 60000;  // Zeit in ms, jetzt minuten
-            float dist = (Prod / 60 * zeit);
+            float dist = (Prod / 60000 * zeit);  // ein 60stel, in kw
+            LastProduktion = curmillis;
             TagProduktion += dist;
+            UDBDebug("Produktion "+String(Prod)+" Zeit: "+String(zeit)+" offset: "+String(dist));
             MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion)); 
 
             if (ProduktionCounter>14) {
@@ -99,7 +101,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             }            
             Prod /= ProduktionCounter;
             MQTT_Send((char const *) "HomeServer/Strom/ProduktionAVG", (long)(Prod)); 
-            LastProduktion = curmillis;
+
             return true;
         }
         break;
@@ -108,7 +110,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         if (message == IsBatVerbrauch) {
             BatterieVerbrauch = value.toFloat();
             float zeit = (curmillis - LastBatVerbrauch) / 60000;  // Zeit in ms, jetzt minuten
-            float dist = (BatterieVerbrauch / 60 * zeit);
+            float dist = (BatterieVerbrauch / 60000 * zeit); // ein 60stel, in kw
             if (WallboxNrg < 10) {
                 // Auto lädt nicht, nehme Batterie
                 GesamtVerbrauch = BatterieVerbrauch;
@@ -163,6 +165,7 @@ void Strom::runStunde() {
     // nachdem Hour log geschrieben
  
     MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", (long)(WallboxEto-WallboxEtoStart)); 
+      UDBDebug("hourly report_strom ende");
 }
 
 

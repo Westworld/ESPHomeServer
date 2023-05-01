@@ -25,7 +25,7 @@ bool Sensor::HandleMQTT(String message, short joblength, String value) {
     return false;
 }
 
-void Sensor::RunDay() {
+void Sensor::runDay() {
 
 }
 

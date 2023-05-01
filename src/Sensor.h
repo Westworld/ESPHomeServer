@@ -21,7 +21,7 @@ class Sensor
         virtual void Run(int32_t zeit);
         virtual bool HandleWebCall(String Job, short strlen);
         virtual bool HandleMQTT(String message, short joblength, String value);
-        virtual void RunDay(); 
+        virtual void runDay(); 
         virtual void runStunde(); 
         virtual void ToJson(JsonObject json);
         virtual void StatusToJson(JsonObject json);

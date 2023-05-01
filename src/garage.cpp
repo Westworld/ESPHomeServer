@@ -227,8 +227,12 @@ void Garage::StatusToJson(JsonObject json){
 }
 
 void Garage::JsonReceive(JsonObject data) {
-    if (counter == 0)
+    UDBDebug("garage1");
+    if (counter == 0) {
+        UDBDebug(String((long) data["counter"]));
         counter = data["counter"]; // 13805
+    }
+    UDBDebug("garage2");    
     if (counterday == 0) 
         counterday = data["counterday"]; // 2
 
