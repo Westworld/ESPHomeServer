@@ -26,7 +26,8 @@ class Sensor
         virtual void ToJson(JsonObject json);
         virtual void StatusToJson(JsonObject json);
         bool get_token_Stored_Data(String &from, float &to);
-        double round2(double value);
+        float round2(float value);
+        float round1(float value);        
 };
 
 #endif

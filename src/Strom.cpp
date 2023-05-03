@@ -60,9 +60,10 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         }
 
         if (message == IsEinzelVerbrauch) {
-            Einzelverbrauch = value.toFloat();
-            float zeit = (curmillis - LastEinzelVerbrauch) / 60000;  // Zeit in ms, jetzt minuten
-            float dist = (Einzelverbrauch / 60 * zeit);
+            Einzelverbrauch = round2(value.toFloat()*0.85);
+            float zeit = (curmillis - LastEinzelVerbrauch);
+            zeit = zeit / 60000.0;  // Zeit in ms, jetzt minuten
+            float dist = (Einzelverbrauch / 60000.0 * zeit);
             TagEinzelVerbrauch += dist;
             //UDBDebug("Einzelverbrauch dist: "+String(dist)+" zeit: "+String(zeit)+" last: "+String(LastEinzelVerbrauch)+" cur: "+String(curmillis));
             MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
@@ -81,12 +82,12 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
     case sizeof(IsProduktion):   // and IsEinzelVerbrauch
         if (message == IsProduktion) {
             float Prod = value.toFloat();
-            float zeit = (curmillis - LastProduktion) / 60000;  // Zeit in ms, jetzt minuten
-            float dist = (Prod / 60000 * zeit);  // ein 60stel, in kw
+            float zeit = (curmillis - LastProduktion);
+            zeit  = zeit / 60000.0;  // Zeit in ms, jetzt minuten
+            float dist = (Prod / 60000.0 * zeit);  // ein 60stel, in kw
             LastProduktion = curmillis;
             TagProduktion += dist;
-            UDBDebug("Produktion "+String(Prod)+" Zeit: "+String(zeit)+" offset: "+String(dist));
-            MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (long)(TagProduktion)); 
+            MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", (float)(TagProduktion)); 
 
             if (ProduktionCounter>14) {
                 for (short i=0;i<14;i++) {
@@ -219,8 +220,9 @@ void Strom::StatusToJson(JsonObject json){
     json["StromVerkauf"] = round2(StromVerkauf);
     json["TagStromKauf"] = round2(TagStromKauf);
     json["TagStromVerkauf"] = round2(TagStromVerkauf);    
-    json["TagBatProduktion"] = round2(TagGesamtVerbrauch);
+    json["TagGesamtVerbrauch"] = round2(TagGesamtVerbrauch);
     json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
+    json["TagProduktion"] = round2(TagProduktion); 
     json["TagWallBoxEto"] == WallboxEto-WallboxEtoStart;
 }
 
@@ -232,9 +234,9 @@ void Strom::ToJson(JsonObject json){
     json["TagStromKaufStart"] = round2(TagStromKaufStart);
     json["TagStromVerkaufStart"] = round2(TagStromVerkaufStart);
     json["EinzelVerbrauch"] = round2(Einzelverbrauch);
-    json["BatterieProduktion"] = round2(GesamtVerbrauch);
+    json["GesamtVerbrauch"] = round2(GesamtVerbrauch);
     json["BatterieVerbrauch"] = round2(BatterieVerbrauch);     
-    json["TagBatProduktion"] = round2(TagGesamtVerbrauch); 
+    json["TagGesamtVerbrauch"] = round2(TagGesamtVerbrauch); 
     json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);   
     json["TagWallBoxEto"] == WallboxEto-WallboxEtoStart;        
     }

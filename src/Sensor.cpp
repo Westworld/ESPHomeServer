@@ -48,6 +48,10 @@ bool Sensor::get_token_Stored_Data(String &from, float &to)
   }  
 }
 
-double Sensor::round2(double value) {
+float Sensor::round2(float value) {
    return (int)(value * 100 + 0.5) / 100.0;
+}
+
+float Sensor::round1(float value) {
+   return (int)(value * 10 + 0.5) / 10.0;
 }

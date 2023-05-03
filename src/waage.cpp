@@ -101,13 +101,13 @@ String Waage::serialize() {
 
 
 void Waage::ToJson(JsonObject json){
-    json["Buddy"] = round2(Buddy);
-    json["Mika"] = round2(Mika);
-    json["Matti"] = round2(Matti);
-    json["Timmi"] = round2(Timmi);
-    json["tag_Buddy"] = round2(tag_Buddy);
-    json["tag_Mika"] = round2(tag_Mika);
-    json["tag_Matti"] = round2(tag_Matti);     
+    json["Buddy"] = round1(Buddy);
+    json["Mika"] = round1(Mika);
+    json["Matti"] = round1(Matti);
+    json["Timmi"] = round1(Timmi);
+    json["tag_Buddy"] = round1(tag_Buddy);
+    json["tag_Mika"] = round1(tag_Mika);
+    json["tag_Matti"] = round1(tag_Matti);     
 }
 
 void Waage::StatusToJson(JsonObject json){
