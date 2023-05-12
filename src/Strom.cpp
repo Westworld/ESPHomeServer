@@ -11,6 +11,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
   const char IsBatVerbrauch[] =    "HomeServer/Batterie/Consumption_W";
   const char IsEinzelVerbrauch[] = "HomeServer/Einzel/Gesamt";
   const char IsProduktion[] =      "HomeServer/Strom/Produktion";
+  const char IsProduktionDaily[] = "HomeServer/Strom/ProduktionDaily";
 
   const char IsWallboxCar[] =      "HomeServer/Wallbox/car";
   const char IsWallboxAmp[] =      "HomeServer/Wallbox/amp";
@@ -60,7 +61,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         }
 
         if (message == IsEinzelVerbrauch) {
-            Einzelverbrauch = round2(value.toFloat()*0.85);
+            Einzelverbrauch = round2(value.toFloat()*0.92);
             float zeit = (curmillis - LastEinzelVerbrauch);
             zeit = zeit / 60000.0;  // Zeit in ms, jetzt minuten
             float dist = (Einzelverbrauch / 60000.0 * zeit);
@@ -143,6 +144,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         }
         if (message == IsWallboxEto) {
             WallboxEto = value.toInt();
+            if (WallboxEtoStart == 0) WallboxEtoStart = WallboxEto;
             return true;
         }
         if (message == IsWallboxPsm) {
@@ -155,6 +157,13 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         }                        
         break;
 
+    case sizeof(IsProduktionDaily): 
+        if (message == IsProduktionDaily) {
+            TagProduktion = value.toFloat(); 
+            MQTT_Send((char const *) "HomeServer/Strom/TagProduktion", TagProduktion); 
+            return true;
+        }
+        break;
 
     default:
         break;
@@ -166,7 +175,7 @@ void Strom::runStunde() {
     // nachdem Hour log geschrieben
  
     MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", (long)(WallboxEto-WallboxEtoStart)); 
-      UDBDebug("hourly report_strom ende");
+   //   UDBDebug("hourly report_strom ende");
 }
 
 
@@ -223,7 +232,7 @@ void Strom::StatusToJson(JsonObject json){
     json["TagGesamtVerbrauch"] = round2(TagGesamtVerbrauch);
     json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch); 
     json["TagProduktion"] = round2(TagProduktion); 
-    json["TagWallBoxEto"] == WallboxEto-WallboxEtoStart;
+    json["TagWallBoxEto"] = WallboxEto-WallboxEtoStart;
 }
 
 
@@ -233,12 +242,13 @@ void Strom::ToJson(JsonObject json){
     json["StromVerkauf"] = round2(StromVerkauf);
     json["TagStromKaufStart"] = round2(TagStromKaufStart);
     json["TagStromVerkaufStart"] = round2(TagStromVerkaufStart);
-    json["EinzelVerbrauch"] = round2(Einzelverbrauch);
+    json["EinzelVerbrauch"] = int(Einzelverbrauch);
     json["GesamtVerbrauch"] = round2(GesamtVerbrauch);
     json["BatterieVerbrauch"] = round2(BatterieVerbrauch);     
     json["TagGesamtVerbrauch"] = round2(TagGesamtVerbrauch); 
-    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);   
-    json["TagWallBoxEto"] == WallboxEto-WallboxEtoStart;        
+    json["TagEinzelVerbrauch"] = round2(TagEinzelVerbrauch);
+    json["TagProduktion"] = round2(TagProduktion);   
+    json["TagWallBoxEto"] = WallboxEto-WallboxEtoStart;        
     }
 
 void Strom::JsonReceive(JsonObject strom) {
@@ -256,6 +266,8 @@ void Strom::JsonReceive(JsonObject strom) {
         BatterieVerbrauch = strom["BatterieVerbrauch"]; // 328
     if (TagGesamtVerbrauch == 0)
         TagGesamtVerbrauch = strom["TagGesamtVerbrauch"]; // 1544.32
+    if (TagProduktion == 0)
+        TagProduktion = strom["TagProduktion"]; // 1544.32
     if (GesamtVerbrauch == 0)
         GesamtVerbrauch = strom["GesamtVerbrauch"]; // 1416.45
     if (TagEinzelVerbrauch == 0)
@@ -265,7 +277,7 @@ void Strom::JsonReceive(JsonObject strom) {
 }
 
 void Strom::runDay() {
-  UDBDebug("daily report_strom start");
+  //UDBDebug("daily report_strom start");
   TagStromKaufStart=StromKauf;
   TagStromVerkaufStart=StromVerkauf;
   TagStromKauf=0;
@@ -280,5 +292,5 @@ void Strom::runDay() {
   MQTT_Send((char const *) "HomeServer/Strom/TagGesamtVerbrauch", TagGesamtVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", 0L); 
-  UDBDebug("daily report_strom ende");
+  //UDBDebug("daily report_strom ende");
 }

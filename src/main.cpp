@@ -245,23 +245,20 @@ void loop() {
               sensor[i]->runStunde();
             }
             jsonstore();  // log, hourly
-
-              String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
-              memory += "  getMaxAllocHeap: ";
-              memory += String(ESP.getMaxAllocHeap());
-              UDBDebug(memory);
         }    
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
         SDLog_Lastday = timeinfo.tm_mday;
-        UDBDebug("start daily report");
         jsonstatussend(); // data, daily, number from previous day
-        UDBDebug("mid daily report");
         for (int16_t i=0; i<sensorcounter;i++) {  
           sensor[i]->runDay();
         } 
-        UDBDebug("end daily report");
+
+              String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
+              memory += "  getMaxAllocHeap: ";
+              memory += String(ESP.getMaxAllocHeap());
+              UDBDebug(memory);
       }      
 
 

@@ -9,11 +9,11 @@ class Garage: public Sensor
         float temp=0, lasttemp, tempcounter=0;
         long counter=0;
         long counterday=0;
-        enum  Tor { Auf=0, Zu, GehtAuf, GehtZu, Unklar=-1 };
-        int8_t BMW = Unklar;
-        int8_t Mini = Unklar;
-        char BMWBild[5]="<>";
-        char MiniBild[5]="<>";     
+        enum  Tor { Auf=0, Zu, GehtAuf, GehtZu, Unklar};
+        int8_t BMW = Zu;
+        int8_t Mini = Zu;
+        char BMWBild[5]="Zu";
+        char MiniBild[5]="Zu";     
         void SetGarageDoor(String door);  
         void SetGarageDoorNew(int8_t Seite, int8_t Zustand, String ZustandBild);
 

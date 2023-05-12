@@ -8,12 +8,12 @@ extern void HTTP_Send(String url);
 
 bool Garage::HandleWebCall(String job, short strlen) {
     if (job == "Garage") {
-        long counter = 0;
+        long received_counter = 0;  // local counter, not the class counter!
         float temp = 127;
         String Button="";
         if (server.hasArg("Strom")) {
           String SCounter = server.arg("Strom"); 
-          counter = SCounter.toInt();
+          received_counter = SCounter.toInt();
         }
         if (server.hasArg("Temp2")) {
           String STemp = server.arg("Temp2"); 
@@ -22,7 +22,7 @@ bool Garage::HandleWebCall(String job, short strlen) {
         if (server.hasArg("Button")) {
           Button = server.arg("Button"); 
         } 
-        NewReport(counter, temp, Button);   
+        NewReport(received_counter, temp, Button);   
         server.send(200, "text/html", String("OK Garage"));  
         return true;
     }
@@ -69,16 +69,20 @@ void Garage::NewReport(long newcounter, float newtemp, String Button) {
     {
         long offset;
         
-        if (counter != 0)
-         offset =  newcounter-counter;
+        if (counter != 0) {
+            if (counter > newcounter)
+                offset =  newcounter-counter;
+            else   
+                offset = 1;  // Garage ESP made a reset and started again with 1
+        } 
         else
          offset = 1;
         counter = newcounter;
         if (offset != 0)
             MQTT_Send((char const *) "HomeServer/Garage/Counter", offset); 
 
-        counterday+=offset;   
-
+        counterday+=offset; 
+        if (counterday < 0) counterday = 1;  
     }
 
 
