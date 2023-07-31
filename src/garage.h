@@ -9,6 +9,7 @@ class Garage: public Sensor
         float temp=0, lasttemp, tempcounter=0;
         long counter=0;
         long counterday=0;
+        long counterdaystart=0;
         enum  Tor { Auf=0, Zu, GehtAuf, GehtZu, Unklar};
         int8_t BMW = Zu;
         int8_t Mini = Zu;

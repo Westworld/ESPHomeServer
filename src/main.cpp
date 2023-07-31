@@ -36,7 +36,7 @@ extern void Homematic_Set(String device, int8_t status);
 #define UDPDEBUG 1
 #ifdef UDPDEBUG
 WiFiUDP udp;
-const char * udpAddress = "192.168.0.34";
+const char * udpAddress = "192.168.0.95";
 const int udpPort = 19814;
 #endif
 
@@ -47,9 +47,7 @@ WiFiClient wifiClient;
 String MY_TZ = DefaultTimeZone ;
 const char* wifihostname = "ESPHomeServer";
 
-const char* host = "http://192.168.0.34";
-const int httpPort = 80;
-
+int8_t mqtterrorcounter=0;
 
 const char* mqtt_server = "192.168.0.46";
 // MQTT_User and MQTT_Pass defined via platform.ini, external file, not uploaded to github
@@ -212,9 +210,12 @@ void loop() {
   if (!mqttclient.loop()) {
     if (mqttclient.connect(wifihostname, MQTT_User, MQTT_Pass)) {
       UDBDebug("MQTT reconnect successful"); 
+      mqtterrorcounter=0;
    }  
     else
        UDBDebug("MQTT reconnect error");  
+       if (mqtterrorcounter++ > 5)
+        ESP.restart();
   };
   
   static int32_t zeit=0, altzeit=0, gesamtzeit=0;
@@ -249,19 +250,25 @@ void loop() {
       }
 
       if (timeinfo.tm_mday != SDLog_Lastday)  {
+        UDBDebug("start run day");
         SDLog_Lastday = timeinfo.tm_mday;
         jsonstatussend(); // data, daily, number from previous day
         for (int16_t i=0; i<sensorcounter;i++) {  
           sensor[i]->runDay();
         } 
+        jsonstore(); 
+        
+        String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
+        memory += "  getMaxAllocHeap: ";
+        memory += String(ESP.getMaxAllocHeap());
+        UDBDebug(memory);
+        UDBDebug("daily restart");
+        delay(500);
+        ESP.restart();
 
-              String memory = "getFreeHeap: "+String(ESP.getFreeHeap());
-              memory += "  getMaxAllocHeap: ";
-              memory += String(ESP.getMaxAllocHeap());
-              UDBDebug(memory);
       }      
 
-
+/*
       if ((time_last_restart_day == 6) && (timeinfo.tm_wday == 0))
       {
         // time for restart !! one restart every week
@@ -270,6 +277,7 @@ void loop() {
         ESP.restart();
       }
       else time_last_restart_day = timeinfo.tm_wday;
+*/
 
   }  // time success received
 }
@@ -351,6 +359,8 @@ void webdebug() {
 }
 
 void webtest() {
+    UDBDebug("webtest");
+
     const int capacity = 500; 
     StaticJsonDocument<capacity> doc;
 
@@ -374,6 +384,8 @@ void jsonstatussend() {
     waage->StatusToJson(doc.createNestedObject("waage"));
     strom->StatusToJson(doc.createNestedObject("strom"));
 
+    doc["stamp"] = String(timeinfo.tm_hour)+":"+(timeinfo.tm_min);
+
     String output;
     serializeJson(doc, output);
 
@@ -389,8 +401,11 @@ void jsonstore() {
     waage->ToJson(doc.createNestedObject("waage"));
     strom->ToJson(doc.createNestedObject("strom"));
 
+    doc["stamp"] = String(timeinfo.tm_hour)+":"+(timeinfo.tm_min);
+
     String output;
     serializeJson(doc, output);
+
 
     MQTT_Send("HomeServer/Server/Log", output);
     

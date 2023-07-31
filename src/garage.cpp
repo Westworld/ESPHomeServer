@@ -72,17 +72,22 @@ void Garage::NewReport(long newcounter, float newtemp, String Button) {
         if (counter != 0) {
             if (counter > newcounter)
                 offset =  newcounter-counter;
-            else   
+            else   {
                 offset = 1;  // Garage ESP made a reset and started again with 1
+                counterdaystart = counter;
+                counterday=0;
+            }
         } 
         else
          offset = 1;
-        counter = newcounter;
-        if (offset != 0)
-            MQTT_Send((char const *) "HomeServer/Garage/Counter", offset); 
 
-        counterday+=offset; 
-        if (counterday < 0) counterday = 1;  
+        counter = newcounter;
+        if (offset != 0) {
+            MQTT_Send((char const *) "HomeServer/Garage/Counter", counter); 
+
+            if (counterdaystart == 0) counterdaystart = counter;
+            counterday=counter-counterdaystart;  
+        }    
     }
 
 
@@ -218,12 +223,15 @@ String Garage::serialize() {
 
 void Garage::RunDay() {
   MQTT_Send((char const *) "HomeServer/Garage/CounterDay", counterday); 
-  counterday=0; 
+  counterdaystart = counter;
+  counterday=0;
+  UDBDebug("Garage Run Day"); 
 }
 
 void Garage::ToJson(JsonObject json){
     json["counter"] = counter;
     json["counterday"] = counterday;
+    json["counterdaystart"] = counterdaystart;
 }
 
 void Garage::StatusToJson(JsonObject json){
@@ -239,5 +247,7 @@ void Garage::JsonReceive(JsonObject data) {
     UDBDebug("garage2");    
     if (counterday == 0) 
         counterday = data["counterday"]; // 2
-
+    UDBDebug("garage3");    
+    if (counterdaystart == 0) 
+        counterdaystart = data["counterdaystart"]; // 2
 }

@@ -64,17 +64,18 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
             Einzelverbrauch = round2(value.toFloat()*0.92);
             float zeit = (curmillis - LastEinzelVerbrauch);
             zeit = zeit / 60000.0;  // Zeit in ms, jetzt minuten
-            float dist = (Einzelverbrauch / 60000.0 * zeit);
+            float dist = (Einzelverbrauch / 60000.0 * zeit) * 1.05;  
+            // 5% höher scheint richtiger zu sein, Vergleich Produktion-Verkauf (wenn nicht geladen wird)
             TagEinzelVerbrauch += dist;
             //UDBDebug("Einzelverbrauch dist: "+String(dist)+" zeit: "+String(zeit)+" last: "+String(LastEinzelVerbrauch)+" cur: "+String(curmillis));
             MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
-            if (WallboxNrg > 0) {
+            // if (WallboxNrg > 0) { immer Einzelwerte, stimmen besser
                 // Auto lädt, nehme Einzelwerte
                 GesamtVerbrauch = Einzelverbrauch;
                 TagGesamtVerbrauch += dist;
                 MQTT_Send((char const *) "HomeServer/Strom/GesamtVerbrauch", GesamtVerbrauch); 
                 MQTT_Send((char const *) "HomeServer/Strom/TagGesamtVerbrauch", TagGesamtVerbrauch); 
-            }
+            //}
             LastEinzelVerbrauch = curmillis;
             return true;
         }
@@ -108,11 +109,13 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
         }
         break;
 
-    case sizeof(IsBatVerbrauch):   // and IsEinzelVerbrauch
+    case sizeof(IsBatVerbrauch):  
+        //UDBDebug(message);
         if (message == IsBatVerbrauch) {
             BatterieVerbrauch = value.toFloat();
             float zeit = (curmillis - LastBatVerbrauch) / 60000;  // Zeit in ms, jetzt minuten
             float dist = (BatterieVerbrauch / 60000 * zeit); // ein 60stel, in kw
+            /* immer Einzelverbrauch
             if (WallboxNrg < 10) {
                 // Auto lädt nicht, nehme Batterie
                 GesamtVerbrauch = BatterieVerbrauch;
@@ -120,6 +123,7 @@ bool Strom::HandleMQTT(String message, short joblength, String value) {
                 MQTT_Send((char const *) "HomeServer/Strom/GesamtVerbrauch", GesamtVerbrauch); 
                 MQTT_Send((char const *) "HomeServer/Strom/TagGesamtVerbrauch", TagGesamtVerbrauch); 
             }
+            */
             LastBatVerbrauch = curmillis;
             return true;
         }
@@ -240,6 +244,8 @@ void Strom::ToJson(JsonObject json){
     // log, hourly
     json["StromKauf"] = round2(StromKauf);
     json["StromVerkauf"] = round2(StromVerkauf);
+    json["TagStromKauf"] = round2(TagStromKauf);
+    json["TagStromVerkauf"] = round2(TagStromVerkauf); 
     json["TagStromKaufStart"] = round2(TagStromKaufStart);
     json["TagStromVerkaufStart"] = round2(TagStromVerkaufStart);
     json["EinzelVerbrauch"] = int(Einzelverbrauch);
@@ -277,7 +283,7 @@ void Strom::JsonReceive(JsonObject strom) {
 }
 
 void Strom::runDay() {
-  //UDBDebug("daily report_strom start");
+  UDBDebug("daily report_strom start");
   TagStromKaufStart=StromKauf;
   TagStromVerkaufStart=StromVerkauf;
   TagStromKauf=0;
@@ -292,5 +298,5 @@ void Strom::runDay() {
   MQTT_Send((char const *) "HomeServer/Strom/TagGesamtVerbrauch", TagGesamtVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Strom/TagEinzelVerbrauch", TagEinzelVerbrauch); 
   MQTT_Send((char const *) "HomeServer/Wallbox/EtoTag", 0L); 
-  //UDBDebug("daily report_strom ende");
+  UDBDebug("daily report_strom ende");
 }
