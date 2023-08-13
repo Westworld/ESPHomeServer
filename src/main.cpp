@@ -6,6 +6,14 @@
 #include <PubSubClient.h>
 #include <HTTPClient.h>
 
+#include <Adafruit_NeoPixel.h>
+
+#define PIN        8
+#define NUMPIXELS  1
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+
+
 
 #include <iostream>
 #include <fstream>
@@ -106,11 +114,6 @@ void WifiConnect() {
         ESP.restart();
     }
 
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(F("."));
-    }
     IPAddress ip = WiFi.localIP();
     Serial.println(F("WiFi connected"));
     Serial.println(ip);
@@ -120,6 +123,10 @@ void setup() {
   Serial.begin(115200);
 
   WifiConnect() ;
+
+  pixels.clear();
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+    pixels.show();
 
     ArduinoOTA
     .onStart([]() {
@@ -186,6 +193,7 @@ void setup() {
   sensor[sensorcounter++] = strom;
 
 // Web request handler
+// aufruf von Garage, Raspi 63 /var/www/html/GarageStatus.php
   server.on("/4DAction/Strom", handleStrom);
   server.on("/debug", webdebug);
   server.on("/test", webtest);
@@ -262,9 +270,9 @@ void loop() {
         memory += "  getMaxAllocHeap: ";
         memory += String(ESP.getMaxAllocHeap());
         UDBDebug(memory);
-        UDBDebug("daily restart");
+        //UDBDebug("daily restart");
         delay(500);
-        ESP.restart();
+        //ESP.restart();
 
       }      
 
@@ -283,6 +291,8 @@ void loop() {
 }
 
 void handleStrom() {
+
+  // aufruf von Garage, Raspi 63 /var/www/html/GarageStatus.php
 
   if (server.hasArg("Job"))  {
     String job = server.arg("Job");
