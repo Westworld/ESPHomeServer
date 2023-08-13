@@ -23,23 +23,8 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 #include "garage.h"
 #include "Strom.h"
 
-/*
-selbst: http://192.168.0.59/
-http://esphomeserver.fritz.box/sendfile?Folder
-http://esphomeserver.fritz.box/debug?Delete
-
-Rolladen 3 - Lets do it - 192.168.0.85
-Dreamer Power - 192.168.0.107
-Waschmaschine - 192.168.0.111
-Rule1 war:
-15:06:46 MQT: Haus/Waschmaschine/RESULT = {"Rule1":"ON","Once":"OFF","StopOnError":"OFF","Free":317,"Rules":"on Power1#State=1 do websend [192.168.0.34:8000] /4DAction/Strom?job=Waschmaschine&power=1 endon on Power1#State=0 do websend [192.168.0.34:8000] /4DAction/Strom?job=Waschmaschine&power=0 endon "}
-
-
-*/
 
 #define StorageVersion 1
-
-extern void Homematic_Set(String device, int8_t status);
 
 #define UDPDEBUG 1
 #ifdef UDPDEBUG
