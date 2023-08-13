@@ -19,7 +19,7 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 #include <fstream>
 
 #include "waage.h"
-#include "wasser.h"
+//#include "wasser.h"
 #include "garage.h"
 #include "Strom.h"
 
@@ -79,7 +79,7 @@ ESP32WebServer server(80);
 Sensor * sensor[10];
 int16_t sensorcounter=0;
 Waage * waage;
-Wasser * wasser;
+//Wasser * wasser;
 Garage * garage;
 Strom * strom;
 
@@ -185,8 +185,8 @@ void setup() {
  // DEVICES
   waage = new Waage();
   sensor[sensorcounter++] = waage;
-  wasser = new Wasser();
-  sensor[sensorcounter++] = wasser;
+  //wasser = new Wasser();
+  //sensor[sensorcounter++] = wasser;
   garage = new Garage();
   sensor[sensorcounter++] = garage;
   strom = new Strom();
@@ -375,7 +375,7 @@ void webtest() {
     StaticJsonDocument<capacity> doc;
 
     garage->ToJson(doc.createNestedObject("garage"));
-    wasser->ToJson(doc.createNestedObject("wasser"));
+   // wasser->ToJson(doc.createNestedObject("wasser"));
     waage->ToJson(doc.createNestedObject("waage"));
     strom->ToJson(doc.createNestedObject("strom"));
 
@@ -390,7 +390,7 @@ void jsonstatussend() {
       StaticJsonDocument<Jsonsize> doc;
 
     garage->StatusToJson(doc.createNestedObject("garage"));
-    wasser->StatusToJson(doc.createNestedObject("wasser"));
+    //wasser->StatusToJson(doc.createNestedObject("wasser"));
     waage->StatusToJson(doc.createNestedObject("waage"));
     strom->StatusToJson(doc.createNestedObject("strom"));
 
@@ -407,7 +407,7 @@ void jsonstore() {
       StaticJsonDocument<Jsonsize> doc;
 
     garage->ToJson(doc.createNestedObject("garage"));
-    wasser->ToJson(doc.createNestedObject("wasser"));
+    //wasser->ToJson(doc.createNestedObject("wasser"));
     waage->ToJson(doc.createNestedObject("waage"));
     strom->ToJson(doc.createNestedObject("strom"));
 
@@ -438,8 +438,8 @@ UDBDebug("jsonreceive 1");
 
     garage->JsonReceive(doc["garage"]);
 UDBDebug("jsonreceive 1b");
-    wasser->JsonReceive(doc["wasser"]); 
-    UDBDebug("jsonreceive 1c");
+   // wasser->JsonReceive(doc["wasser"]); 
+   // UDBDebug("jsonreceive 1c");
     waage->JsonReceive(doc["waage"]);
     UDBDebug("jsonreceive 2");
     strom->JsonReceive(doc["strom"]);
